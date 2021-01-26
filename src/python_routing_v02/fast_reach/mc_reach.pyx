@@ -649,11 +649,22 @@ cpdef object compute_network_multithread(int nsteps, list reaches, dict connecti
 
     return np.asarray(data_idx, dtype=np.intp), np.asarray(flowveldepth, dtype='float32')
 
-cpdef object compute_network_structured_obj(int nsteps, list reaches, dict connections,
-    const long[:] data_idx, object[:] data_cols, const float[:,:] data_values,
-    const float[:, :] qlat_values, const float[:,:] initial_conditions,
-    # const float[:] wbody_idx, object[:] wbody_cols, const float[:, :] wbody_vals,
-    bint assume_short_ts=False):
+cpdef object compute_network_structured_obj(
+    int nsteps,
+    int qts_subdivisions,
+    list reaches,
+    dict connections,
+    const long[:] data_idx,
+    object[:] data_cols,
+    const float[:,:] data_values,
+    const float[:,:] qlat_values,
+    const float[:,:] initial_conditions,
+    # const float[:] wbody_idx,
+    # object[:] wbody_cols,
+    # const float[:,:] wbody_vals,
+    dict upstream_results={},
+    bint assume_short_ts=False
+    ):
     """
     Compute network
     Args:
@@ -684,6 +695,8 @@ cpdef object compute_network_structured_obj(int nsteps, list reaches, dict conne
     cdef np.ndarray[float, ndim=2] init_array = np.asarray(initial_conditions)
     cdef np.ndarray[float, ndim=2] qlat_array = np.asarray(qlat_values)
     ###### Declare/type variables #####
+    # Source columns
+    cdef Py_ssize_t[:] scols = np.array(column_mapper(data_cols), dtype=np.intp)
     cdef Py_ssize_t max_buff_size = 0
     #lists to hold reach definitions, i.e. list of ids
     cdef list reach
@@ -724,10 +737,13 @@ cpdef object compute_network_structured_obj(int nsteps, list reaches, dict conne
         max_buff_size=len(segment_ids)
 
       for sid in segment_ids:
-        #FIXME data_array order is important, column_mapper might help with this
+        #Initialize parameters  from the data_array, and set the initial initial_conditions
+        #These aren't actually used (the initial contions) in the kernel as they are extracted from the
+        #flowdepthvel array, but they could be used I suppose.  Note that velp isn't used anywhere, so
+        #it is inialized to 0.0
         segment_objects.append(
-            MC_Segment(sid, *data_array[sid], *init_array[sid])
-            )
+        MC_Segment(sid, *data_array[sid, scols], init_array[sid, 0], 0.0, init_array[sid, 2])
+        )
 
       reach_objects.append(
           MC_Reach(segment_objects, array('l',upstream_ids))
@@ -767,7 +783,7 @@ cpdef object compute_network_structured_obj(int nsteps, list reaches, dict conne
               buf_view[i][8] = segment.cs
               buf_view[i][9] = segment.s0
               buf_view[i][10] = flowveldepth[segment.id, timestep-1, 0]
-              buf_view[i][11] = flowveldepth[segment.id, timestep-1, 1]
+              buf_view[i][11] = 0.0 #flowveldepth[segment.id, timestep-1, 1]
               buf_view[i][12] = flowveldepth[segment.id, timestep-1, 2]
 
             compute_reach_kernel(previous_upstream_flows, upstream_flows,
@@ -788,10 +804,20 @@ cpdef object compute_network_structured_obj(int nsteps, list reaches, dict conne
     return np.asarray(data_idx, dtype=np.intp), np.asarray(flowveldepth.reshape(flowveldepth.shape[0], -1), dtype='float32')
 
 
-cpdef object compute_network_structured(int nsteps, list reaches, dict connections,
-    const long[:] data_idx, object[:] data_cols, const float[:,:] data_values,
-    const float[:, :] qlat_values, const float[:,:] initial_conditions,
-    # const float[:] wbody_idx, object[:] wbody_cols, const float[:, :] wbody_vals,
+cpdef object compute_network_structured(
+    int nsteps,
+    int qts_subdivisions,
+    list reaches,
+    dict connections,
+    const long[:] data_idx,
+    object[:] data_cols,
+    const float[:,:] data_values,
+    const float[:,:] qlat_values,
+    const float[:,:] initial_conditions,
+    # const float[:] wbody_idx,
+    # object[:] wbody_cols,
+    # const float[:,:] wbody_vals,
+    dict upstream_results={},
     bint assume_short_ts=False):
     """
     Compute network
@@ -823,6 +849,8 @@ cpdef object compute_network_structured(int nsteps, list reaches, dict connectio
     cdef np.ndarray[float, ndim=2] init_array = np.asarray(initial_conditions)
     cdef np.ndarray[float, ndim=2] qlat_array = np.asarray(qlat_values)
     ###### Declare/type variables #####
+    # Source columns
+    cdef Py_ssize_t[:] scols = np.array(column_mapper(data_cols), dtype=np.intp)
     cdef Py_ssize_t max_buff_size = 0
     #lists to hold reach definitions, i.e. list of ids
     cdef list reach
@@ -868,9 +896,12 @@ cpdef object compute_network_structured(int nsteps, list reaches, dict connectio
         max_buff_size=len(segment_ids)
 
       for sid in segment_ids:
-        #FIXME data_array order is important, column_mapper might help with this
+        #Initialize parameters  from the data_array, and set the initial initial_conditions
+        #These aren't actually used (the initial contions) in the kernel as they are extracted from the
+        #flowdepthvel array, but they could be used I suppose.  Note that velp isn't used anywhere, so
+        #it is inialized to 0.0
         segment_objects.append(
-            MC_Segment(sid, *data_array[sid], *init_array[sid])
+            MC_Segment(sid, *data_array[sid, scols], init_array[sid, 0], 0.0, init_array[sid, 2])
             )
 
       reach_objects.append(
@@ -926,7 +957,7 @@ cpdef object compute_network_structured(int nsteps, list reaches, dict connectio
                 buf_view[i][8] = segment.cs
                 buf_view[i][9] = segment.s0
                 buf_view[i][10] = flowveldepth[segment.id, timestep-1, 0]
-                buf_view[i][11] = flowveldepth[segment.id, timestep-1, 1]
+                buf_view[i][11] = 0.0 #flowveldepth[segment.id, timestep-1, 1]
                 buf_view[i][12] = flowveldepth[segment.id, timestep-1, 2]
 
               compute_reach_kernel(previous_upstream_flows, upstream_flows,
