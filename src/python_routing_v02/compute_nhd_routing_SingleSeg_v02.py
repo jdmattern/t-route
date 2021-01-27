@@ -761,6 +761,9 @@ def main():
     verbose = run_parameters.get("verbose", None)
     showtiming = run_parameters.get("showtiming", None)
     debuglevel = run_parameters.get("debuglevel", 0)
+    break_network_at_waterbodies = run_parameters.get(
+        "break_network_at_waterbodies", False
+    )
 
     if verbose:
         print("creating supernetwork connections set")
@@ -768,7 +771,10 @@ def main():
         start_time = time.time()
 
     # STEP 1: Build basic network connections graph
-    connections, wbodies, param_df = nnu.build_connections(supernetwork_parameters, dt)
+    connections, param_df = nnu.build_connections(supernetwork_parameters, dt,)
+    wbodies = nnu.build_waterbodies(param_df, supernetwork_parameters, "waterbody")
+    if break_network_at_waterbodies:
+        connections = nhd_network.replace_waterbodies_connections(connections, wbodies)
 
     print("WATERBODIES BEFORE REPLACEMENT") 
     print(wbodies) 
@@ -797,8 +803,7 @@ def main():
     #)
 
     independent_networks, reaches_bytw, rconn = nnu.organize_independent_networks(
-        connections,
-        wbodies
+        connections, wbodies if break_network_at_waterbodies else False,
     )
 
     for _, reach_list in reaches_bytw.items():
