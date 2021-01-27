@@ -113,6 +113,9 @@ def read_level_pool_waterbody_df(
 
     # TODO: avoid or parameterize "feature_id" or ... return to name-blind dataframe version
     with xr.open_dataset(parm_file) as ds:
+        print ("ds----------------")
+        print (ds)
+
         ds = ds.swap_dims({"feature_id": lake_index_field})
         df1 = ds.sel({lake_index_field: list(lake_id_mask)}).to_dataframe()
     df1 = df1.sort_index(axis="index")

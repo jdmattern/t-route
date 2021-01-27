@@ -774,6 +774,7 @@ def main():
     connections, param_df = nnu.build_connections(supernetwork_parameters, dt,)
     wbodies = nnu.build_waterbodies(param_df, supernetwork_parameters, "waterbody")
     if break_network_at_waterbodies:
+        print("BREAK NETWORK AT WATERBODIES")
         connections = nhd_network.replace_waterbodies_connections(connections, wbodies)
 
     print("WATERBODIES BEFORE REPLACEMENT") 
@@ -791,6 +792,29 @@ def main():
         print("supernetwork connections set complete")
     if showtiming:
         print("... in %s seconds." % (time.time() - start_time))
+
+    ################################
+    ## STEP 3a: Read waterbody parameter file
+    #waterbodies_values = supernetwork_values[12]
+    #waterbodies_segments = supernetwork_values[13]
+    #connections_tailwaters = supernetwork_values[4]
+
+
+    print("WB PARAMS")
+
+    print(waterbody_parameters["level_pool"]["level_pool_waterbody_parameter_file_path"])
+
+    #waterbodies_df = nhd_io.read_waterbody_df(waterbody_parameters
+    
+
+    #waterbodies_df = nhd_io.read_level_pool_waterbody_df(waterbody_parameters["level_pool"]["level_pool_waterbody_parameter_file_path"])
+
+    waterbodies_df = nhd_io.read_waterbody_df(waterbody_parameters, {"level_pool":wbodies.values()})
+
+
+
+
+    ###################################
 
     # STEP 2: Identify Independent Networks and Reaches by Network
     if showtiming:
