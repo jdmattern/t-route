@@ -431,13 +431,19 @@ def build_connections(supernetwork_parameters, dt):
     return connections, wbodies, param_df
 
 
-def organize_independent_networks(connections):
+#def organize_independent_networks(connections):
+def organize_independent_networks(connections, wbodies=None):
 
     rconn = nhd_network.reverse_network(connections)
     independent_networks = nhd_network.reachable_network(rconn)
     reaches_bytw = {}
     for tw, net in independent_networks.items():
-        path_func = partial(nhd_network.split_at_junction, net)
+        #path_func = partial(nhd_network.split_at_junction, net)
+        if wbodies:
+            path_func = partial(nhd_network.split_at_waterbodies_and_junctions, wbodies, net)
+        else:
+            path_func = partial(nhd_network.split_at_junction, net)
+
         reaches_bytw[tw] = nhd_network.dfs_decomposition(net, path_func)
 
     return independent_networks, reaches_bytw, rconn

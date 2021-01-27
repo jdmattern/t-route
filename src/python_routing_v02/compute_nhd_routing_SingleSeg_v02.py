@@ -770,6 +770,17 @@ def main():
     # STEP 1: Build basic network connections graph
     connections, wbodies, param_df = nnu.build_connections(supernetwork_parameters, dt)
 
+    print("WATERBODIES BEFORE REPLACEMENT") 
+    print(wbodies) 
+    #print("CONNECTIONS")
+    #print(connections)
+
+    #connections = nnu.replace_waterbodies_connections(connections, wbodies)
+    #connections = nhd_network.replace_waterbodies_connections(connections, wbodies)
+
+    print("WATERBODIES AFTER REPLACEMENT") 
+    print(wbodies) 
+
     if verbose:
         print("supernetwork connections set complete")
     if showtiming:
@@ -781,9 +792,21 @@ def main():
     if verbose:
         print("organizing connections into reaches ...")
 
+    #independent_networks, reaches_bytw, rconn = nnu.organize_independent_networks(
+    #    connections
+    #)
+
     independent_networks, reaches_bytw, rconn = nnu.organize_independent_networks(
-        connections
+        connections,
+        wbodies
     )
+
+    for _, reach_list in reaches_bytw.items():
+        for reach in reach_list:
+            for r in reach:
+                print(f"{reach}, {r in wbodies}")
+
+
 
     if verbose:
         print("reach organization complete")
