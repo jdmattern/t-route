@@ -286,6 +286,7 @@ def constant_qlats(index_dataset, nsteps, qlat):
 def compute_nhd_routing_v02(
     connections,
     rconn,
+    wbodies,
     reaches_bytw,
     compute_func,
     parallel_compute_method,
@@ -298,6 +299,7 @@ def compute_nhd_routing_v02(
     qlats,
     q0,
     assume_short_ts,
+    waterbodies_df,
 ):
 
     start_time = time.time()
@@ -596,7 +598,9 @@ def compute_nhd_routing_v02(
 
     else:  # Execute in serial
         results = []
+
         for twi, (tw, reach_list) in enumerate(reaches_bytw.items(), 1):
+            import pdb; pdb.set_trace()
             segs = list(chain.from_iterable(reach_list))
             param_df_sub = param_df.loc[
                 segs, ["dt", "bw", "tw", "twcc", "dx", "n", "ncc", "cs", "s0"]
@@ -811,8 +815,12 @@ def main():
 
     waterbodies_df = nhd_io.read_waterbody_df(waterbody_parameters, {"level_pool":wbodies.values()})
 
+    print("waterbodies_df------------------------------------------------")
+    print(waterbodies_df)
+    print("-------------------------------------------------")
 
-
+    print(":wbodies.values()}")
+    print ({"level_pool":wbodies.values()})
 
     ###################################
 
@@ -830,10 +838,10 @@ def main():
         connections, wbodies if break_network_at_waterbodies else False,
     )
 
-    for _, reach_list in reaches_bytw.items():
-        for reach in reach_list:
-            for r in reach:
-                print(f"{reach}, {r in wbodies}")
+    #for _, reach_list in reaches_bytw.items():
+    #    for reach in reach_list:
+    #        for r in reach:
+    #            print(f"{reach}, {r in wbodies}")
 
 
 
@@ -884,9 +892,15 @@ def main():
     else:
         compute_func = mc_reach.compute_network
 
+    print ("wbodies")
+    print (wbodies)
+
+    import pdb; pdb.set_trace()
+
     results = compute_nhd_routing_v02(
         connections,
         rconn,
+        wbodies,
         reaches_bytw,
         compute_func,
         run_parameters.get("parallel_compute_method", None),
@@ -900,6 +914,7 @@ def main():
         qlats,
         q0,
         run_parameters.get("assume_short_ts", False),
+        waterbodies_df,
     )
 
     csv_output_folder = output_parameters.get("csv_output_folder", None)

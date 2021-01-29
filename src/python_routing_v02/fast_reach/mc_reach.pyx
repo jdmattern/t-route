@@ -725,29 +725,43 @@ cpdef object compute_network_structured_obj(
     #pr.enable()
     #Preprocess the raw reaches, creating MC_Reach/MC_Segments
     for reach in reaches:
-      upstream_reach = connections.get(reach[0], ())
-      segment_ids = binary_find(data_idx, reach)
-      upstream_ids = binary_find(data_idx, upstream_reach)
+        print ("reach----------------------")
+        print (reach)
+        print ("--------------------")
 
-      #Set the initial condtions before running loop
-      flowveldepth[segment_ids, 0] = init_array[segment_ids]
-      segment_objects = []
-      #Find the max reach size, used to create buffer for compute_reach_kernel
-      if len(segment_ids) > max_buff_size:
-        max_buff_size=len(segment_ids)
+        dummy1 = 1
+        if (dummy1 == 2):
+           print("a")
+        #if isintance(LevelPool, reach):
+            #Set the initial condtions before running loop
+            #flowveldepth[reach.id, 0] = init_array[reach.id]
+            #reach_objects.append(reach)
 
-      for sid in segment_ids:
-        #Initialize parameters  from the data_array, and set the initial initial_conditions
-        #These aren't actually used (the initial contions) in the kernel as they are extracted from the
-        #flowdepthvel array, but they could be used I suppose.  Note that velp isn't used anywhere, so
-        #it is inialized to 0.0
-        segment_objects.append(
-        MC_Segment(sid, *data_array[sid, scols], init_array[sid, 0], 0.0, init_array[sid, 2])
-        )
+        else:
+       
+            upstream_reach = connections.get(reach[0], ())
+            segment_ids = binary_find(data_idx, reach)
+            upstream_ids = binary_find(data_idx, upstream_reach)
 
-      reach_objects.append(
-          MC_Reach(segment_objects, array('l',upstream_ids))
-          )
+            #Set the initial condtions before running loop
+            flowveldepth[segment_ids, 0] = init_array[segment_ids]
+            segment_objects = []
+            #Find the max reach size, used to create buffer for compute_reach_kernel
+            if len(segment_ids) > max_buff_size:
+                max_buff_size=len(segment_ids)
+
+            for sid in segment_ids:
+                #Initialize parameters  from the data_array, and set the initial initial_conditions
+                #These aren't actually used (the initial contions) in the kernel as they are extracted from the
+                #flowdepthvel array, but they could be used I suppose.  Note that velp isn't used anywhere, so
+                #it is inialized to 0.0
+                segment_objects.append(
+                MC_Segment(sid, *data_array[sid, scols], init_array[sid, 0], 0.0, init_array[sid, 2])
+            )
+
+            reach_objects.append(
+                MC_Reach(segment_objects, array('l',upstream_ids))
+                )
 
     #Init buffers
     lateral_flows = np.zeros( max_buff_size, dtype='float32' )
