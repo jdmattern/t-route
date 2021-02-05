@@ -653,24 +653,16 @@ cpdef object compute_network_multithread(int nsteps, list reaches, dict connecti
 cpdef object compute_network_structured_obj(
     int nsteps,
     int qts_subdivisions,
-    list reaches, #make a this a list of tuples
-    #tuple reaches,
+    list reaches, # a list of tuples
     dict connections,
     const long[:] data_idx,
     object[:] data_cols,
     const float[:,:] data_values,
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
-    # const float[:] wbody_idx,
-    #object[:] wbody_cols,
     dict wbodies,
-    #const float[:,:] wbody_vals,
-    #object[:,:] wbody_cols,
-    #const int[:] lake_numbers_col,
-    #int[:] lake_numbers_col,
-    #list lake_numbers_col,
+    list lake_numbers_col,
     const double[:,:] wbody_cols,
-    #object[:,:] wbody_cols,
     dict upstream_results={},
     bint assume_short_ts=False
     ):
@@ -723,7 +715,8 @@ cpdef object compute_network_structured_obj(
     cdef float[:,:] out_buf
     cdef float[:] lateral_flows
     #reach iterator
-    cdef MC_Reach r
+    #Commenting r out below for now in order for r to hold levelpool reservoirs
+    #cdef MC_Reach r 
     # list of reach objects to operate on
     cdef list reach_objects = []
     cdef list segment_objects
@@ -735,152 +728,49 @@ cpdef object compute_network_structured_obj(
     #pr.enable()
     #Preprocess the raw reaches, creating MC_Reach/MC_Segments
 
-    #print("wbody_cols-------------------------")         
-    #print(wbody_cols)         
-    #print(wbody_cols[0][0]) 
-    #print(type(wbody_cols[0][0]))        
-    #print(wbody_cols[0][1])         
-    #print(wbody_cols[1][0])
-    #print(wbody_cols.shape)         
-    print("------------------------------")
-
-    #lake_set = set(wbody_cols)
-
-    #lake_number_column = wbody_cols[:,0]    
-    #print("lake_number_column-------------------------")         
-    #print(lake_number_column[0])
-    #print(lake_number_column[1])
-    #print(lake_number_column[2])
-    #print(lake_number_column.tolist())
-    
-    #print(lake_number_column.shape)         
-    print("------------------------------")
-    print("reaches in mc")
-    print(reaches)
-
-    #Each element of reaches could be a tuple, with a type (0 reach  or 1 "reservoir", reach)
-    #for reach_type, reach in reaches:
-
     wbody_index = 0
 
-    #############
     for reach, reach_type in reaches:
-        #print ("reach_type") 
-        #print (reach_type) 
-        #print ("reach") 
-        #print (reach) 
 
-        #lake_numbers_col
-        #for reach in reaches:
-        #print ("reach----------------------")
-        #print (reach)
-        #print (wbodies)
-        #print (wbodies)
-        #print ("intersect")
-        ###########
-        #intersection = set(wbodies.values()) & set(reach)
-        ##########
-        #if reach in wbodies)
-        ############
+        #Check if reach_type is 1 for reservoir
+        if (reach_type == 1):
 
-        #for reach_i, reach in enumerate(reaches):
-        #if reach_i in reservoir_reach_position_list:
-        #Do reservoir
+            #Extract waterbody parameters for given reservoir
+            lake_area = wbody_parameters[wbody_index,0]
+            weir_elevation = wbody_parameters[wbody_index,6]
+            weir_coefficient = wbody_parameters[wbody_index,5]
+            weir_length = wbody_parameters[wbody_index,7]
 
+            #TODO: Need new Lake Parm file, which now has dam_length
+            #dam_length = wbody_parameters[wbody_index,1]
+            #Setting default dam_length to 10
+            dam_length = 10.0
 
+            orifice_elevation = wbody_parameters[wbody_index,4]
+            orifice_coefficient = wbody_parameters[wbody_index,3]
+            orifice_area = wbody_parameters[wbody_index,2]
+            max_depth = wbody_parameters[wbody_index,1]
+            initial_fractional_depth  = wbody_parameters[wbody_index,8]
 
-        #print (set(wbodies.values()))
-        #print (set(reach))
-        #print (intersection)
+            lake_number = lake_numbers_col[wbody_index]
+           
+            #TODO: Read Water Elevation from Restart. Use below equation if no restart.
+            #Equation below is used in wrf-hydro
+            water_elevation = orifice_elevation + ((max_depth - orifice_elevation) * initial_fractional_depth) 
 
-        #print ("--------------------")
-        #print ("--------------------")
-        #print(wbody_cols)         
+            #Initialize level pool reservoir object
+            lp_reservoir = lp_kernel(0, 1,
+                water_elevation, lake_area,
+                weir_elevation, weir_coefficient, weir_length,
+                dam_length, orifice_elevation, orifice_coefficient,
+                orifice_area, max_depth, lake_number)
 
-        #dummy1 = 1
-        #if (dummy1 == 2):
-        #   print("a")
-        #if (intersection is not None):
-        #if (intersection):
-        if (reach_type == 2):
-            print ("RESERVOIR")
-
-            print ("reach") 
-            print (reach) 
-            #print (set(wbodies.values()))
-            #print (set(reach))
-            #print (intersection)
-
-            #lake_number = intersection.pop()
-            #print ("lake_number")
-            #print (lake_number)
-            #lake_num_type = type(lake_number)
-            #print (lake_num_type)
-
-
-            #wbody_cols_index = np.where(wbody_cols[:,0] == lake_number)
-            #wbody_cols_index = np.where(wbody_cols[:][0] == lake_number)
-            #wbody_cols_index = np.where(wbody_cols[1][0] == lake_number)
-            #print ("wbody_cols_index")
-            #print (wbody_cols_index)
-
-            #wbody_cols_row_index = np.where(lake_number_column == lake_number)
-            #wbody_cols_row_index = np.where(lake_numbers_col == lake_number)
-            #print("wbody_cols_row_index")
-            #print(wbody_cols_row_index[0])
-            #print(wbody_cols_row_index)
-
-            #if (wbody_cols[1][0] == lake_number):
-            #    print ("TRUE--------------------------------------") 
-            #else:
-            #    print ("FALSE--------------------------------------") 
-
-            print("wbody_cols-------------------------")         
-            print(wbody_cols[0,:])         
-            print(wbody_cols[0][:])         
-            print(wbody_cols[0])         
-            print(wbody_cols[0][1])         
-
-
-            print("wbody_parameters-------------------------")         
-            #############
-            #print(wbody_parameters[0,:])         
-            print ("------------")
-            print ("------------")
-            print(wbody_parameters[wbody_index,:])         
-            print(wbody_parameters[wbody_index,1])         
-            print ("------------")
-            print ("------------")
-            ###############
+            #Add level pool reservoir ojbect to reach_objects
+            reach_objects.append(
+                lp_reservoir
+                )
             
-            print(wbody_parameters[0][:])         
-            print(wbody_parameters[0])         
-            print(wbody_parameters[0][1])         
-
-
-            #print (wbody_params)
-            print ("------------")
-
-            water_elevation = 9.7373;
-            lake_area = 15.0949;
-            weir_elevation = 9.626;
-            weir_coefficient = 0.4;
-            weir_length = 10.0;
-            dam_length = 10.0;
-            orifice_elevation = 7.733;
-            orifice_coefficient = 0.1;
-            orifice_area = 1.0;
-            max_depth = 9.96;
-            #lake_number = 16944276;
-
             wbody_index += 1
-
-         
-
-        #if isintance(LevelPool, reach):
-            #Set the initial condtions before running loop
-            #flowveldepth[reach.id, 0] = init_array[reach.id]
-            #reach_objects.append(reach)
 
         else:
        
@@ -916,12 +806,32 @@ cpdef object compute_network_structured_obj(
     #Run time
     while timestep < nsteps:
       for r in reach_objects:
+
+        #Check if Level Pool Reservoir Object
+        if isinstance(r, lp_kernel):
+
+            #TODO: Need to extract upstream flows
+            upstream_flows = 0.0
+
+            #TODO: dt is currently held by the segment. Need to find better place to hold dt
+            routing_period = 300.0
+
+            #TODO: return water_elvation from reservoir run
+            reservoir_outflow = lp_reservoir.run(upstream_flows, 0.0, routing_period) 
+
+            flowveldepth[id, timestep, 0] = reservoir_outflow
+            flowveldepth[id, timestep, 1] = 0.0
+            flowveldepth[id, timestep, 2] = 0.0 #put water elevation here
+
+        else:
+
             #Need to get quc and qup
             upstream_flows = 0.0
             previous_upstream_flows = 0.0
             for id in r.upstream_ids: #Explicit loop reduces some overhead
-              upstream_flows += flowveldepth[id, timestep, 0]
-              previous_upstream_flows += flowveldepth[id, timestep-1, 0]
+                upstream_flows += flowveldepth[id, timestep, 0]
+                previous_upstream_flows += flowveldepth[id, timestep-1, 0]
+
             #Index of segments required to process this reach
             segment_ids = []
 
