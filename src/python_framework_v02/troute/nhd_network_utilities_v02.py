@@ -444,8 +444,8 @@ def build_waterbodies(
     # TODO: Add function to read LAKEPARM.nc here
     # TODO: return the lakeparam_df
 
-#def organize_independent_networks(connections):
     return wbodies
+
 
 def organize_independent_networks(connections, wbodies=None):
 

@@ -299,7 +299,6 @@ def compute_nhd_routing_v02(
     qlats,
     q0,
     assume_short_ts,
-    #waterbodies_lake_numbers,
     waterbodies_df,
 ):
 
@@ -425,7 +424,6 @@ def compute_nhd_routing_v02(
                             qlat_sub.values,
                             q0_sub.values,
                             wbodies,
-                            #waterbodies_lake_numbers,
                             waterbodies_df,
                             # flowveldepth_interorder,  # obtain keys and values from this dataset
                             {
@@ -886,7 +884,6 @@ def main():
         compute_func = mc_reach.compute_network_structured
     elif run_parameters.get("compute_method", None) == "V02-structured-obj":
         compute_func = mc_reach.compute_network_structured_obj
-        print ("--------------struct obj--------------") 
     else:
         compute_func = mc_reach.compute_network
 
