@@ -11,6 +11,7 @@ from libc.stdlib cimport malloc, free
 #Note may get slightly better performance using cython mem module (pulls from python's heap)
 #from cpython.mem cimport PyMem_Malloc, PyMem_Free
 from troute.network.reach cimport MC_Segment, MC_Reach, _MC_Segment, _MC_Reach
+from compute_kernel_lp import lp_kernel
 from cython.parallel import prange
 #import cProfile
 #pr = cProfile.Profile()
@@ -157,8 +158,8 @@ cpdef object compute_network(
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
     # const float[:] wbody_idx,
-    # object[:] wbody_cols,
-    # const float[:, :] wbody_vals,
+    object[:] wbody_cols,
+    const float[:, :] wbody_vals,
     dict upstream_results={},
     bint assume_short_ts=False,
     ):
@@ -652,7 +653,8 @@ cpdef object compute_network_multithread(int nsteps, list reaches, dict connecti
 cpdef object compute_network_structured_obj(
     int nsteps,
     int qts_subdivisions,
-    list reaches,
+    list reaches, #make a this a list of tuples
+    #tuple reaches,
     dict connections,
     const long[:] data_idx,
     object[:] data_cols,
@@ -660,8 +662,15 @@ cpdef object compute_network_structured_obj(
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
     # const float[:] wbody_idx,
-    # object[:] wbody_cols,
-    # const float[:,:] wbody_vals,
+    #object[:] wbody_cols,
+    dict wbodies,
+    #const float[:,:] wbody_vals,
+    #object[:,:] wbody_cols,
+    #const int[:] lake_numbers_col,
+    #int[:] lake_numbers_col,
+    #list lake_numbers_col,
+    const double[:,:] wbody_cols,
+    #object[:,:] wbody_cols,
     dict upstream_results={},
     bint assume_short_ts=False
     ):
@@ -694,6 +703,7 @@ cpdef object compute_network_structured_obj(
     cdef np.ndarray[float, ndim=2] data_array = np.asarray(data_values)
     cdef np.ndarray[float, ndim=2] init_array = np.asarray(initial_conditions)
     cdef np.ndarray[float, ndim=2] qlat_array = np.asarray(qlat_values)
+    cdef np.ndarray[double, ndim=2] wbody_parameters = np.asarray(wbody_cols)
     ###### Declare/type variables #####
     # Source columns
     cdef Py_ssize_t[:] scols = np.array(column_mapper(data_cols), dtype=np.intp)
@@ -724,14 +734,149 @@ cpdef object compute_network_structured_obj(
     cdef MC_Segment segment
     #pr.enable()
     #Preprocess the raw reaches, creating MC_Reach/MC_Segments
-    for reach in reaches:
-        print ("reach----------------------")
-        print (reach)
-        print ("--------------------")
 
-        dummy1 = 1
-        if (dummy1 == 2):
-           print("a")
+    #print("wbody_cols-------------------------")         
+    #print(wbody_cols)         
+    #print(wbody_cols[0][0]) 
+    #print(type(wbody_cols[0][0]))        
+    #print(wbody_cols[0][1])         
+    #print(wbody_cols[1][0])
+    #print(wbody_cols.shape)         
+    print("------------------------------")
+
+    #lake_set = set(wbody_cols)
+
+    #lake_number_column = wbody_cols[:,0]    
+    #print("lake_number_column-------------------------")         
+    #print(lake_number_column[0])
+    #print(lake_number_column[1])
+    #print(lake_number_column[2])
+    #print(lake_number_column.tolist())
+    
+    #print(lake_number_column.shape)         
+    print("------------------------------")
+    print("reaches in mc")
+    print(reaches)
+
+    #Each element of reaches could be a tuple, with a type (0 reach  or 1 "reservoir", reach)
+    #for reach_type, reach in reaches:
+
+    wbody_index = 0
+
+    #############
+    for reach, reach_type in reaches:
+        #print ("reach_type") 
+        #print (reach_type) 
+        #print ("reach") 
+        #print (reach) 
+
+        #lake_numbers_col
+        #for reach in reaches:
+        #print ("reach----------------------")
+        #print (reach)
+        #print (wbodies)
+        #print (wbodies)
+        #print ("intersect")
+        ###########
+        #intersection = set(wbodies.values()) & set(reach)
+        ##########
+        #if reach in wbodies)
+        ############
+
+        #for reach_i, reach in enumerate(reaches):
+        #if reach_i in reservoir_reach_position_list:
+        #Do reservoir
+
+
+
+        #print (set(wbodies.values()))
+        #print (set(reach))
+        #print (intersection)
+
+        #print ("--------------------")
+        #print ("--------------------")
+        #print(wbody_cols)         
+
+        #dummy1 = 1
+        #if (dummy1 == 2):
+        #   print("a")
+        #if (intersection is not None):
+        #if (intersection):
+        if (reach_type == 2):
+            print ("RESERVOIR")
+
+            print ("reach") 
+            print (reach) 
+            #print (set(wbodies.values()))
+            #print (set(reach))
+            #print (intersection)
+
+            #lake_number = intersection.pop()
+            #print ("lake_number")
+            #print (lake_number)
+            #lake_num_type = type(lake_number)
+            #print (lake_num_type)
+
+
+            #wbody_cols_index = np.where(wbody_cols[:,0] == lake_number)
+            #wbody_cols_index = np.where(wbody_cols[:][0] == lake_number)
+            #wbody_cols_index = np.where(wbody_cols[1][0] == lake_number)
+            #print ("wbody_cols_index")
+            #print (wbody_cols_index)
+
+            #wbody_cols_row_index = np.where(lake_number_column == lake_number)
+            #wbody_cols_row_index = np.where(lake_numbers_col == lake_number)
+            #print("wbody_cols_row_index")
+            #print(wbody_cols_row_index[0])
+            #print(wbody_cols_row_index)
+
+            #if (wbody_cols[1][0] == lake_number):
+            #    print ("TRUE--------------------------------------") 
+            #else:
+            #    print ("FALSE--------------------------------------") 
+
+            print("wbody_cols-------------------------")         
+            print(wbody_cols[0,:])         
+            print(wbody_cols[0][:])         
+            print(wbody_cols[0])         
+            print(wbody_cols[0][1])         
+
+
+            print("wbody_parameters-------------------------")         
+            #############
+            #print(wbody_parameters[0,:])         
+            print ("------------")
+            print ("------------")
+            print(wbody_parameters[wbody_index,:])         
+            print(wbody_parameters[wbody_index,1])         
+            print ("------------")
+            print ("------------")
+            ###############
+            
+            print(wbody_parameters[0][:])         
+            print(wbody_parameters[0])         
+            print(wbody_parameters[0][1])         
+
+
+            #print (wbody_params)
+            print ("------------")
+
+            water_elevation = 9.7373;
+            lake_area = 15.0949;
+            weir_elevation = 9.626;
+            weir_coefficient = 0.4;
+            weir_length = 10.0;
+            dam_length = 10.0;
+            orifice_elevation = 7.733;
+            orifice_coefficient = 0.1;
+            orifice_area = 1.0;
+            max_depth = 9.96;
+            #lake_number = 16944276;
+
+            wbody_index += 1
+
+         
+
         #if isintance(LevelPool, reach):
             #Set the initial condtions before running loop
             #flowveldepth[reach.id, 0] = init_array[reach.id]
@@ -829,8 +974,8 @@ cpdef object compute_network_structured(
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
     # const float[:] wbody_idx,
-    # object[:] wbody_cols,
-    # const float[:,:] wbody_vals,
+    object[:] wbody_cols,
+    const float[:,:] wbody_vals,
     dict upstream_results={},
     bint assume_short_ts=False):
     """

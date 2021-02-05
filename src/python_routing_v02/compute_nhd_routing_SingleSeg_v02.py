@@ -299,6 +299,7 @@ def compute_nhd_routing_v02(
     qlats,
     q0,
     assume_short_ts,
+    #waterbodies_lake_numbers,
     waterbodies_df,
 ):
 
@@ -423,6 +424,9 @@ def compute_nhd_routing_v02(
                             param_df_sub.values,
                             qlat_sub.values,
                             q0_sub.values,
+                            wbodies,
+                            #waterbodies_lake_numbers,
+                            waterbodies_df,
                             # flowveldepth_interorder,  # obtain keys and values from this dataset
                             {
                                 us: fvd
@@ -598,7 +602,6 @@ def compute_nhd_routing_v02(
 
     else:  # Execute in serial
         results = []
-
         for twi, (tw, reach_list) in enumerate(reaches_bytw.items(), 1):
             # The X_sub lines use SEGS...
             # which is now invalid with the wbodies included.
@@ -608,24 +611,131 @@ def compute_nhd_routing_v02(
             common_segs = param_df.index.intersection(segs)
             # Assumes everything else is a waterbody...
             wbodies_segs = set(segs).symmetric_difference(common_segs)
+            print ("wbodies_segs")            
+            print (wbodies_segs)
+
+            if (not waterbodies_df.empty):
+                print ("waterbodies_df2")
+                print (waterbodies_df)
+
+                lake_segs = list(waterbodies_df.index.intersection(segs))
+                print ("lake_segs")
+                print (lake_segs)
+
+                #waterbodies_df_sub = waterbodies_df.loc[lake_segs]
+                waterbodies_df_sub = waterbodies_df.loc[
+                    lake_segs, ["LkArea", "LkMxE", "OrificeA", "OrificeC", "OrificeE", "WeirC", "WeirE", "WeirL"]]
+                print ("waterbodies_df_sub")
+                print (waterbodies_df_sub)
+
+                print ("-------------------------")            
+
+
+
             param_df_sub = param_df.loc[
                 common_segs, ["dt", "bw", "tw", "twcc", "dx", "n", "ncc", "cs", "s0"]
             ].sort_index()
+
+            #print ("param_df_sub")
+            #print (param_df_sub)
+            #print ("-------------------------")            
+            
+            #print ("param_df")
+            #print (param_df)
+            #print ("-------------------------")            
+
+            #print ("-------------------------")            
+            #print ("-------------------------")            
+            #print ("-------------------------")            
+            #print ("reach_list")
+            #print (reach_list)
+            #print ("-------------------------")            
+
+            #if (wbodies_segs):
+            #   reach_type = 2 # type 2 for waterbody/lake
+            #else:
+            #   reach_type = 1 # type 1 for reach
+
+            reaches_list_with_type = []
+            
+            for reaches in reach_list:
+                #print("set(reaches)")
+                #print(set(reaches))
+
+                #print("set(reaches) & wbodies_segs")
+                #print(set(reaches) & wbodies_segs)
+
+                #if (reaches in wbodies_segs):
+                if (set(reaches) & wbodies_segs):
+                    reach_type = 2 # type 2 for waterbody/lake
+                else:
+                    reach_type = 1 # type 1 for reach
+
+                reach_and_type_tuple = (reaches, reach_type)
+
+                reaches_list_with_type.append(reach_and_type_tuple)
+
+                #reach_list_of_tuples_with_type = []
+                
+                #for reach in reaches:
+
+                #    if (reach in wbodies_segs):
+                #        reach_type = 2 # type 2 for waterbody/lake
+                #    else:
+                #        reach_type = 1 # type 1 for reach
+                #print ("reach!!!!!!!!")
+                #print (reaches)                
+                #reach_type = 1 # type 1 for reach
+
+                #reach_and_type_tuple = (reaches, reach_type)
+                #reach_list_of_tuples_with_type.append(reach_and_type_tuple)
+
+                #reaches_list_with_type.append(reach_list_of_tuples_with_type)
+                #reaches_list_with_type.append(reach_and_type_tuple)
+
+            print ("reaches_list_with_type")
+            print (reaches_list_with_type)
+
+            print ("-------------------------")            
+            print ("-------------------------")            
+            print ("-------------------------")            
+
+            #reach_list_and_type_tuple = (reach_list, reach_type)
+
+            #print ("reach_list_of_tuples_with_type")
+            #print (reach_list_of_tuples_with_type)
+
+
+
+
             qlat_sub = qlats.loc[common_segs].sort_index()
             q0_sub = q0.loc[common_segs].sort_index()
             results.append(
                 compute_func(
                     nts,
                     qts_subdivisions,
-                    reach_list,
+                    #reach_list,
+                    reaches_list_with_type,
+                    #reach_list_and_type_tuple, 
+                    #reach_list_of_tuples_with_type,
+                    
+                    ########
+                    #reaches_list_with_type,
                     independent_networks[tw],
                     param_df_sub.index.values,
                     param_df_sub.columns.values,
                     param_df_sub.values,
                     qlat_sub.values,
                     q0_sub.values,
+                    wbodies,
+                    #waterbodies_lake_numbers,
+                    #waterbodies_df.index.values,
+                    #param_df_sub.values,
+                    waterbodies_df_sub.values,
                     {},
+                    #waterbodies_df_sub.values,
                     assume_short_ts,
+                    #waterbodies_lake_numbers,
                 )
             )
 
@@ -792,6 +902,7 @@ def main():
     #print("CONNECTIONS")
     #print(connections)
 
+
     #connections = nnu.replace_waterbodies_connections(connections, wbodies)
     #connections = nhd_network.replace_waterbodies_connections(connections, wbodies)
 
@@ -823,6 +934,41 @@ def main():
 
     print("waterbodies_df------------------------------------------------")
     print(waterbodies_df)
+    print("-------------------------------------------------")
+
+    #waterbodies_df_reduced = waterbodies_df.drop_duplicates() 
+    #waterbodies_df_reduced = waterbodies_df.drop_duplicates(subset=['LkMxE']) 
+    #waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='index', keep='last').set_index('index').sort_index()
+    #waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='index', keep='last')
+    #waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='lake_id', keep='last')
+
+
+    ###Below reduces and reindexes lake num col to regular column
+    #waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='lake_id')
+    #######
+
+
+    waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='lake_id').set_index('lake_id')
+
+
+    #waterbodies_df_reduced = waterbodies_df.index.drop_duplicates()
+    #waterbodies_df_reduced = waterbodies_df.reset_index().drop_duplicates(subset='lake_id')
+    
+
+
+    #waterbodies_lake_numbers = waterbodies_df_reduced["lake_id"]
+    
+    #######
+    #waterbodies_lake_numbers = waterbodies_df_reduced["lake_id"].to_list()
+    #########
+
+
+    print("waterbodies_df_reduced------------------------------------------------")
+    print(waterbodies_df_reduced)
+    print("-------------------------------------------------")
+    #print("waterbodies_lake_numbers")
+    #print(waterbodies_lake_numbers)
+    #print(waterbodies_lake_numbers.shape)
     print("-------------------------------------------------")
 
     print(":wbodies.values()}")
@@ -895,13 +1041,16 @@ def main():
         compute_func = mc_reach.compute_network_structured
     elif run_parameters.get("compute_method", None) == "V02-structured-obj":
         compute_func = mc_reach.compute_network_structured_obj
+        print ("--------------struct obj--------------") 
     else:
         compute_func = mc_reach.compute_network
 
     print ("wbodies")
     print (wbodies)
 
-    import pdb; pdb.set_trace()
+    compute_func = mc_reach.compute_network_structured_obj
+
+    #import pdb; pdb.set_trace()
 
     results = compute_nhd_routing_v02(
         connections,
@@ -920,7 +1069,9 @@ def main():
         qlats,
         q0,
         run_parameters.get("assume_short_ts", False),
-        waterbodies_df,
+        #waterbodies_lake_numbers,
+        #waterbodies_df,
+        waterbodies_df_reduced,
     )
 
     csv_output_folder = output_parameters.get("csv_output_folder", None)

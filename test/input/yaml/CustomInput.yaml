@@ -3,6 +3,7 @@
 run_parameters:
     parallel_compute: false
     verbose: true
+    compute-method: V02-structured-obj
     showtiming: true
     debuglevel: 1
     break_network_at_waterbodies: true
