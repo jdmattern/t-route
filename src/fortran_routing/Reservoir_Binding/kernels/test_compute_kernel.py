@@ -178,12 +178,20 @@ def test_lp_run(lp_reservoir):
 
     for inflow in inflow_list:
         out = lp_reservoir.run(inflow, 0.0, routing_period)
+        #out = results_tuple[0]
+        #water_elevation = results_tuple[1]
+
+        water_elevation = lp_reservoir.get_water_elevation()
+
         print(out)
+        print(water_elevation)
 
     expected_final_outflow = 17.0437641
+    expected_final_water_elevation = 10.4923334
 
     assert lp_reservoir is not None
     assert expected_final_outflow == pytest.approx(out)
+    assert expected_final_water_elevation == pytest.approx(water_elevation)
 
 
 def test_lp2_run(lp_reservoir2):
@@ -210,12 +218,22 @@ def test_lp2_run(lp_reservoir2):
 
     for inflow in inflow_list:
         out = lp_reservoir2.run(inflow, 0.0, routing_period)
+
+        #out = results_tuple[0]
+        #water_elevation = results_tuple[1]
+
+        water_elevation = lp_reservoir2.get_water_elevation()
+
+
         print(out)
+        print(water_elevation)
 
     expected_final_outflow = 15.5038433
+    expected_final_water_elevation = 10.4566612
 
     assert lp_reservoir2 is not None
     assert expected_final_outflow == pytest.approx(out)
+    assert expected_final_water_elevation == pytest.approx(water_elevation)
 
 
 def test_compute_hybrid_run(hybrid_reservoir):

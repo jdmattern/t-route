@@ -33,6 +33,11 @@ cdef class compute_kernel_lp:
   #cdef double* outputs;
   cdef float* inputs;
   cdef float* outputs;
+  #cdef outflow_return;
+  #cdef water_elevation_return;
+  #cdef struct run_return_struct:
+  #  outflow_return;
+  #  water_elevation_return;
 
 
   def __init__(self, num_inputs, num_outputs):
@@ -50,72 +55,6 @@ cdef class compute_kernel_lp:
     PyMem_Free(self.inputs)
     PyMem_Free(self.outputs)
 
-
-#David Mattern commenting out for now
-#  #Now the fun part, what do we ACTUALLY compute???
-#  cdef void compute(self):
-#    pass
-'''
-cdef class mc_kernel(compute_kernel):
-  #TODO document these attributes
-  cdef float dt, dx, bw, tw, twcc, n, ncc, cs, s0, qdp, velp, depthp
-  #Hold the previous accumulated upstream flow
-  cdef float qup
-  cdef bint assume_short_ts
-
-  def __init__(dt, dx, tw, twcc, n, ncc, cs, s0, qdp, velp, dethp, qup=0, assume_short_ts=False):
-    """
-      construct the kernel based on passed parameters
-    """
-    self.dt = dt
-    self.dx = dx
-    self.tw = tw
-    self.twcc = twcc
-    self.n = n
-    self.ncc = ncc
-    self.cs = cs
-    self.s0 = s0
-    self.qdp = qdp
-    self.velp = velp
-    self.depthp = depthp
-    #Allow optional previous upstream (initial condition)
-    self.qup = qup
-    self.assume_short_ts = assume_short_ts
-
-  #FIXME return more than one value?
-  cpdef float run(float quc, float qlat) nogil:
-    """
-      run the muskingcung calculation
-    """
-    cdef reach.QVD rv
-    cdef reach.QVD *out = &rv
-
-    reach.muskingcunge(
-                self.dt,
-                self.qup,
-                quc,
-                self.qdp,
-                qlat,
-                self.dx,
-                self.bw,
-                self.tw,
-                self.twcc,
-                n,
-                ncc,
-                cs,
-                s0,
-                velp,
-                depthp,
-                out)
-    #Record quc as qup for next call
-    self.qup = out.qdc
-    cdef q_out = out.qdc
-    if self.assume_short_ts:
-      #Short timestep assumption means current and previous are the same
-      q_out = self.qup
-    #FIXME return other things???
-    return q_out
-'''
 cdef class lp_kernel(compute_kernel_lp):
   """
     Subclass for computing LevelPool reservoir
@@ -136,6 +75,21 @@ cdef class lp_kernel(compute_kernel_lp):
   cdef float max_depth
   cdef int lake_number
 
+  cdef float outflow_return
+  cdef float water_elevation_return
+
+  cdef 
+
+
+  cdef float run_return_arr[2]
+
+  #cdef struct run_return_struct:
+  #  outflow_return
+  #  water_elevation_return
+
+  #ctypedef run_return_struct run_return_struct_var
+
+
   def __init__(self, num_inputs, num_outputs,
               water_elevation, lake_area, weir_elevation, weir_coefficient, weir_length,
               dam_length, orifice_elevation, orifice_coefficient, orifice_area,
@@ -152,6 +106,8 @@ cdef class lp_kernel(compute_kernel_lp):
     self.orifice_area = orifice_area
     self.max_depth = max_depth
     self.lake_number = lake_number
+
+    #ctypedef run_return_struct run_return_struct_var
 
     with nogil:
       self.lp_handle = get_lp_handle()
@@ -171,7 +127,25 @@ cdef class lp_kernel(compute_kernel_lp):
       #printf("outflow: %f\n", outflow)
       return outflow
 
-#David Mattern commenting out for now
-#  cdef void compute2(self) nogil:
-#      #run_lp(self.lp_handle)
-#      pass
+      #run_return_struct_var.outflow_return = outflow
+      #run_return_struct_var.water_elevation_return = self.water_elevation
+
+      #return run_return_struct_var
+
+      #run_return_arr[0] = outflow
+      #run_return_arr[1] = self.water_elevation
+
+      #return run_return_arr
+
+  cpdef float get_water_elevation(self):
+     cdef float water_elevation
+
+     with nogil:
+       water_elevation = self.water_elevation
+       return water_elevation
+
+
+
+
+
+

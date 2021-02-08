@@ -819,9 +819,11 @@ cpdef object compute_network_structured_obj(
             #TODO: return water_elvation from reservoir run
             reservoir_outflow = lp_reservoir.run(upstream_flows, 0.0, routing_period) 
 
+            water_elevation = lp_reservoir.get_water_elevation()
+
             flowveldepth[id, timestep, 0] = reservoir_outflow
             flowveldepth[id, timestep, 1] = 0.0
-            flowveldepth[id, timestep, 2] = 0.0 #put water elevation here
+            flowveldepth[id, timestep, 2] = water_elevation  #put water elevation here
 
         else:
 
