@@ -888,7 +888,7 @@ def main():
         compute_func = mc_reach.compute_network
 
     #TODO: Remove below. --compute-method=V02-structured-obj did not work on command line 
-    compute_func = mc_reach.compute_network_structured_obj
+    #compute_func = mc_reach.compute_network_structured_obj
 
     results = compute_nhd_routing_v02(
         connections,

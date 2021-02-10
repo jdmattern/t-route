@@ -17,10 +17,7 @@ cdef extern void free_lp(void* handle);
 
 
 ############ Other Reservoir Interface ############
-
-#ctypedef enum compute_type: REACH, RESERVOIR_LP
 ctypedef enum compute_type: RESERVOIR_LP
-
 
 cdef class compute_kernel_lp:
   """
@@ -33,12 +30,6 @@ cdef class compute_kernel_lp:
   #cdef double* outputs;
   cdef float* inputs;
   cdef float* outputs;
-  #cdef outflow_return;
-  #cdef water_elevation_return;
-  #cdef struct run_return_struct:
-  #  outflow_return;
-  #  water_elevation_return;
-
 
   def __init__(self, num_inputs, num_outputs):
     """
@@ -48,8 +39,6 @@ cdef class compute_kernel_lp:
     #self.outputs = <double*> PyMem_Malloc(num_outputs * sizeof(double))
     self.inputs = <float*> PyMem_Malloc(num_inputs * sizeof(float))
     self.outputs = <float*> PyMem_Malloc(num_outputs * sizeof(float))
-
-
 
   def __dealloc__(self):
     PyMem_Free(self.inputs)
@@ -75,21 +64,6 @@ cdef class lp_kernel(compute_kernel_lp):
   cdef float max_depth
   cdef int lake_number
 
-  cdef float outflow_return
-  cdef float water_elevation_return
-
-  cdef 
-
-
-  cdef float run_return_arr[2]
-
-  #cdef struct run_return_struct:
-  #  outflow_return
-  #  water_elevation_return
-
-  #ctypedef run_return_struct run_return_struct_var
-
-
   def __init__(self, num_inputs, num_outputs,
               water_elevation, lake_area, weir_elevation, weir_coefficient, weir_length,
               dam_length, orifice_elevation, orifice_coefficient, orifice_area,
@@ -106,8 +80,6 @@ cdef class lp_kernel(compute_kernel_lp):
     self.orifice_area = orifice_area
     self.max_depth = max_depth
     self.lake_number = lake_number
-
-    #ctypedef run_return_struct run_return_struct_var
 
     with nogil:
       self.lp_handle = get_lp_handle()
@@ -127,25 +99,9 @@ cdef class lp_kernel(compute_kernel_lp):
       #printf("outflow: %f\n", outflow)
       return outflow
 
-      #run_return_struct_var.outflow_return = outflow
-      #run_return_struct_var.water_elevation_return = self.water_elevation
-
-      #return run_return_struct_var
-
-      #run_return_arr[0] = outflow
-      #run_return_arr[1] = self.water_elevation
-
-      #return run_return_arr
-
   cpdef float get_water_elevation(self):
      cdef float water_elevation
 
      with nogil:
        water_elevation = self.water_elevation
        return water_elevation
-
-
-
-
-
-

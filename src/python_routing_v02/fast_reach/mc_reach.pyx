@@ -10,7 +10,7 @@ cimport cython
 from libc.stdlib cimport malloc, free
 #Note may get slightly better performance using cython mem module (pulls from python's heap)
 #from cpython.mem cimport PyMem_Malloc, PyMem_Free
-from troute.network.reach cimport MC_Segment, MC_Reach, _MC_Segment, _MC_Reach
+from troute.network.reach cimport MC_Segment, MC_Reach, _MC_Segment, _MC_Reach, MC_Reservoir
 from compute_kernel_lp import lp_kernel
 from cython.parallel import prange
 #import cProfile
@@ -715,7 +715,7 @@ cpdef object compute_network_structured_obj(
     cdef float[:,:] out_buf
     cdef float[:] lateral_flows
     #reach iterator
-    #Commenting r out below for now in order for r to hold levelpool reservoirs
+    #Commenting r out below for now in order for r to be MC_Reach or MC_Reservoir
     #cdef MC_Reach r 
     # list of reach objects to operate on
     cdef list reach_objects = []
@@ -734,6 +734,9 @@ cpdef object compute_network_structured_obj(
 
         #Check if reach_type is 1 for reservoir
         if (reach_type == 1):
+            
+            upstream_reach = connections.get(reach[0], ())
+            upstream_ids = binary_find(data_idx, upstream_reach)
 
             #Extract waterbody parameters for given reservoir
             lake_area = wbody_parameters[wbody_index,0]
@@ -767,7 +770,8 @@ cpdef object compute_network_structured_obj(
 
             #Add level pool reservoir ojbect to reach_objects
             reach_objects.append(
-                lp_reservoir
+                #tuple of MC_Reservoir, reach_type, and lp_reservoir
+                (MC_Reservoir(array('l',upstream_ids)), reach_type, lp_reservoir)
                 )
             
             wbody_index += 1
@@ -795,8 +799,10 @@ cpdef object compute_network_structured_obj(
             )
 
             reach_objects.append(
-                MC_Reach(segment_objects, array('l',upstream_ids))
+                #tuple of MC_Reach and reach_type
+                (MC_Reach(segment_objects, array('l',upstream_ids)), reach_type, None)
                 )
+
 
     #Init buffers
     lateral_flows = np.zeros( max_buff_size, dtype='float32' )
@@ -805,34 +811,33 @@ cpdef object compute_network_structured_obj(
 
     #Run time
     while timestep < nsteps:
-      for r in reach_objects:
+      for r, reach_type, reservoir_object in reach_objects:
+    
+        #Need to get quc and qup
+        upstream_flows = 0.0
+        previous_upstream_flows = 0.0
+        for id in r.upstream_ids: #Explicit loop reduces some overhead
+          upstream_flows += flowveldepth[id, timestep, 0]
+          previous_upstream_flows += flowveldepth[id, timestep-1, 0]
 
-        #Check if Level Pool Reservoir Object
-        if isinstance(r, lp_kernel):
+        #Check if reach_type is 1 for reservoir/waterbody
+        if (reach_type == 1):
 
-            #TODO: Need to extract upstream flows
-            upstream_flows = 0.0
+            #TODO: Add if isintance of the reservoir type
+            #if isinstance(reservoir_object, lp_kernel):
 
             #TODO: dt is currently held by the segment. Need to find better place to hold dt
             routing_period = 300.0
 
-            #TODO: return water_elvation from reservoir run
-            reservoir_outflow = lp_reservoir.run(upstream_flows, 0.0, routing_period) 
+            reservoir_outflow = reservoir_object.run(upstream_flows, 0.0, routing_period) 
 
-            water_elevation = lp_reservoir.get_water_elevation()
+            water_elevation = reservoir_object.get_water_elevation()
 
             flowveldepth[id, timestep, 0] = reservoir_outflow
             flowveldepth[id, timestep, 1] = 0.0
-            flowveldepth[id, timestep, 2] = water_elevation  #put water elevation here
+            flowveldepth[id, timestep, 2] = water_elevation
 
         else:
-
-            #Need to get quc and qup
-            upstream_flows = 0.0
-            previous_upstream_flows = 0.0
-            for id in r.upstream_ids: #Explicit loop reduces some overhead
-                upstream_flows += flowveldepth[id, timestep, 0]
-                previous_upstream_flows += flowveldepth[id, timestep-1, 0]
 
             #Index of segments required to process this reach
             segment_ids = []
