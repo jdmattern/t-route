@@ -756,7 +756,7 @@ cpdef object compute_network_structured_obj(
             initial_fractional_depth  = wbody_parameters[wbody_index,8]
 
             lake_number = lake_numbers_col[wbody_index]
-           
+ 
             #TODO: Read Water Elevation from Restart. Use below equation if no restart.
             #Equation below is used in wrf-hydro
             water_elevation = orifice_elevation + ((max_depth - orifice_elevation) * initial_fractional_depth) 

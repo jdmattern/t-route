@@ -100,8 +100,15 @@ cdef class lp_kernel(compute_kernel_lp):
       return outflow
 
   cpdef float get_water_elevation(self):
-     cdef float water_elevation
+    cdef float water_elevation
 
-     with nogil:
-       water_elevation = self.water_elevation
-       return water_elevation
+    with nogil:
+      water_elevation = self.water_elevation
+      return water_elevation
+
+  cpdef int get_lake_number(self):
+    cdef int lake_number
+
+    with nogil:
+      lake_number = self.lake_number
+      return lake_number
