@@ -619,16 +619,16 @@ def compute_nhd_routing_v02(
                     delayed(compute_func)(
                         nts,
                         qts_subdivisions,
-                        reach_list,
+                        reaches_list_with_type,
                         independent_networks[tw],
                         param_df_sub.index.values,
                         param_df_sub.columns.values,
                         param_df_sub.values,
                         qlat_sub.values,
                         q0_sub.values,
-                        {},
                         lake_segs,
                         waterbodies_df_sub.values,
+                        {},
                         assume_short_ts,
                     )
                 )
@@ -688,7 +688,6 @@ def compute_nhd_routing_v02(
                     param_df_sub.values,
                     qlat_sub.values,
                     q0_sub.values,
-                    wbodies,
                     lake_segs,
                     waterbodies_df_sub.values,
                     {},

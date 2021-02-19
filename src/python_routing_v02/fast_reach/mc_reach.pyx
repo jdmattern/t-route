@@ -150,14 +150,13 @@ cpdef object column_mapper(object src_cols):
 cpdef object compute_network(
     int nsteps,
     int qts_subdivisions,
-    list reaches,
+    list reaches_wTypes,
     dict connections,
     const long[:] data_idx,
     object[:] data_cols,
     const float[:,:] data_values,
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
-    dict wbodies,
     list lake_numbers_col,
     const double[:,:] wbody_cols,
     dict upstream_results={},
@@ -232,6 +231,9 @@ cpdef object compute_network(
         Py_ssize_t ireach  # current reach index
         Py_ssize_t ireach_cache  # current index of reach cache
         Py_ssize_t iusreach_cache  # current index of upstream reach cache
+
+    # Extract only the reaches
+    cdef list reaches = [r for r, _ in reaches_wTypes]
 
     # Measure length of all the reaches
     cdef list reach_sizes = list(map(len, reaches))
@@ -660,7 +662,6 @@ cpdef object compute_network_structured_obj(
     const float[:,:] data_values,
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
-    dict wbodies,
     list lake_numbers_col,
     const double[:,:] wbody_cols,
     dict upstream_results={},
