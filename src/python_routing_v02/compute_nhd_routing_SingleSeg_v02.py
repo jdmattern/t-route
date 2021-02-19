@@ -572,7 +572,6 @@ def compute_nhd_routing_v02(
             print("PARALLEL TIME %s seconds." % (time.time() - start_para_time))
 
     elif parallel_compute_method == "by-network":
-        breakpoint()
         with Parallel(n_jobs=cpu_pool, backend="threading") as parallel:
             jobs = []
             for twi, (tw, reach_list) in enumerate(reaches_bytw.items(), 1):
