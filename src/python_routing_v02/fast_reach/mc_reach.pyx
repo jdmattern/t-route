@@ -157,9 +157,9 @@ cpdef object compute_network(
     const float[:,:] data_values,
     const float[:,:] qlat_values,
     const float[:,:] initial_conditions,
-    # const float[:] wbody_idx,
-    object[:] wbody_cols,
-    const float[:, :] wbody_vals,
+    dict wbodies,
+    list lake_numbers_col,
+    const double[:,:] wbody_cols,
     dict upstream_results={},
     bint assume_short_ts=False,
     ):
