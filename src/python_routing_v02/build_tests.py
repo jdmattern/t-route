@@ -186,7 +186,7 @@ def parity_check(parity_parameters, run_parameters, nts, dt, results):
 
 
     elif "parity_check_waterbody_file" in parity_parameters:
-        validation_data = pd.read_csv(parity_parameters["parity_check_waterbody_file"], index_col=0) 
+        validation_data = pd.read_csv(parity_parameters["parity_check_waterbody_file"], index_col=0)
         validation_data.rename(columns = {"outflow":compare_node}, inplace = True) 
         #TODO: Add toggle option to compare water elevation
         #validation_data.rename(columns = {"water_sfc_elev":compare_node}, inplace = True) 
