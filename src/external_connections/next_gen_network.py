@@ -51,7 +51,7 @@ test_folder = pathlib.Path(root, "test")
 
 import troute.nhd_network as nhd_network
 import troute.nhd_io as nhd_io
-import mc_reach
+#import mc_reach
 
 def main():
 
@@ -90,12 +90,12 @@ def main():
     connections = nhd_network.extract_connections(waterbody_df, "to")
 
     # Read and convert catchment lateral flows to format that can be processed by compute_network
-    qlats = next_gen_io.read_catchment_lateral_flows(next_gen_input_folder)
-    print(qlats)
+    #qlats = next_gen_io.read_catchment_lateral_flows(next_gen_input_folder)
+    #print(qlats)
     rconn = nhd_network.reverse_network(connections)
 
     subnets = nhd_network.reachable_network(rconn, check_disjoint=False)
-    
+    '''  
     # read the routelink file
     nhd_routelink = nhd_io.read_netcdf("data/RouteLink_NHDPLUS.nc")
     nhd_routelink['dt'] = 300.0
@@ -144,8 +144,9 @@ def main():
     for tw, net in subnets.items():
         path_func = partial(nhd_network.split_at_junction, net)
         subreaches[tw] = nhd_network.dfs_decomposition(net, path_func)
+    '''
 
-
+    '''
     results = []
     for twi, (tw, reach) in enumerate(subreaches.items(), 1):
         r = list(chain.from_iterable(reach))
@@ -154,10 +155,10 @@ def main():
         qlat_sub = qlats.loc[r].sort_index()
         q0_sub = q0.loc[r].sort_index()
         
-        results.append(mc_reach.compute_network(
-            nts, reach, subnets[tw], data_sub.index.values, data_sub.columns.values, data_sub.values, qlat_sub.values, q0_sub.values
-            )
-        )
+        #results.append(mc_reach.compute_network(
+        #    nts, reach, subnets[tw], data_sub.index.values, data_sub.columns.values, data_sub.values, qlat_sub.values, q0_sub.values
+        #    )
+        #)
 
     fdv_columns = pd.MultiIndex.from_product([range(nts), ['q', 'v', 'd']]).to_flat_index()
     flowveldepth = pd.concat([pd.DataFrame(d, index=i, columns=fdv_columns) for i, d in results], copy=False)
@@ -165,6 +166,7 @@ def main():
     outfile_base_name = (args.supernetwork).split(".")[0]
     flowveldepth.to_csv(f"{outfile_base_name}_mc_results.csv")
     print(flowveldepth)
+    '''
 
 if __name__ == "__main__":
     main()
