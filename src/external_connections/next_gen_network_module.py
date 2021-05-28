@@ -15,7 +15,6 @@ from functools import partial
 from itertools import chain, islice
 import next_gen_io
 import json
-import next_gen_network_module
 
 def _handle_args():
     parser = argparse.ArgumentParser(
@@ -44,32 +43,40 @@ def _handle_args():
     return parser.parse_args()
 
 root = pathlib.Path('.').resolve()
-sys.path.append(r"../python_framework_v02")
-sys.path.append(r"../python_routing_v02")
-sys.path.append(r"../../test/input/next_gen")
+#sys.path.append(r"../python_framework_v02")
+#sys.path.append(r"../python_routing_v02")
+#sys.path.append(r"../../test/input/next_gen")
 
 test_folder = pathlib.Path(root, "test")
+
+print("sys.path")
+print(sys.path)
 
 import troute.nhd_network as nhd_network
 import troute.nhd_io as nhd_io
 #import mc_reach
 
-def main():
+#def main():
+def main_ngen_network(supernetwork, next_gen_input_folder):
 
-    args = _handle_args()
+    #args = _handle_args()
     
-    next_gen_input_folder = test_folder.joinpath("input", "next_gen")
-    if args.input:
-        next_gen_input_folder = pathlib.Path(args.input)
+    #next_gen_input_folder = test_folder.joinpath("input", "next_gen")
+    #if args.input:
+    #    next_gen_input_folder = pathlib.Path(args.input)
 
     # The following 2 values are currently hard coded for this test domain
     nts = 720  # number of timestep = 1140 * 60(model timestep) = 86400 = day
     dt_mc = 300.0  # time interval for MC
 
     # Currently tested on the Sugar Creek domain
-    ngen_network_df = nhd_io.read_geopandas( args.supernetwork )
-    if args.subset:
-        ngen_network_df = ngen_network_df[ ngen_network_df['realized_catchment'].isin(args.subset) ]
+    ngen_network_df = nhd_io.read_geopandas( supernetwork )
+    #ngen_network_df = nhd_io.read_geopandas( args.supernetwork )
+    
+    #if args.subset:
+    #    ngen_network_df = ngen_network_df[ ngen_network_df['realized_catchment'].isin(args.subset) ]
+    
+    #ngen_network_df = ngen_network_df[ ngen_network_df['realized_catchment'].isin(args.subset) ]
     
     # Create dictionary mapping each connection ID
     ngen_network_dict = dict(zip(ngen_network_df.id, ngen_network_df.toid))
@@ -96,6 +103,11 @@ def main():
     rconn = nhd_network.reverse_network(connections)
 
     subnets = nhd_network.reachable_network(rconn, check_disjoint=False)
+
+    #TEMP STOPPING POINT BEFORE PROCESSING QLATS
+    print ("done with next_gen_network_module.py")
+
+
     '''  
     # read the routelink file
     nhd_routelink = nhd_io.read_netcdf("data/RouteLink_NHDPLUS.nc")
@@ -169,5 +181,5 @@ def main():
     print(flowveldepth)
     '''
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
