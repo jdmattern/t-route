@@ -42,19 +42,26 @@ def _handle_args():
     )
     return parser.parse_args()
 
-root = pathlib.Path('.').resolve()
-#sys.path.append(r"../python_framework_v02")
-#sys.path.append(r"../python_routing_v02")
-#sys.path.append(r"../../test/input/next_gen")
 
-test_folder = pathlib.Path(root, "test")
+def set_paths(root_path):
 
-print("sys.path")
-print(sys.path)
+  framework_path = "../python_framework_v02"
+  routing_path = "../python_routing_v02"
 
-import troute.nhd_network as nhd_network
-import troute.nhd_io as nhd_io
-#import mc_reach
+  framework_path_full = os.path.join(root_path, framework_path)
+  routing_path_full = os.path.join(root_path, routing_path)
+
+  sys.path.append(framework_path_full)
+  sys.path.append(routing_path_full)
+
+  import troute.nhd_network as nhd_network
+  import troute.nhd_io as nhd_io
+
+  return
+
+
+def test_add(a, b):
+  return a + b
 
 #def main():
 def main_ngen_network(supernetwork, next_gen_input_folder):
