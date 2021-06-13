@@ -60,6 +60,22 @@ def set_paths(root_path):
   return
 
 
+def receive_flow_values(flow_values):
+
+  print ("flow_values: ")
+  print (flow_values)
+
+  print ( len(flow_values))
+
+  for i in range(0, len(flow_values)):
+
+    print(flow_values[i])
+
+
+  return
+
+
+
 def test_add(a, b):
   return a + b
 
