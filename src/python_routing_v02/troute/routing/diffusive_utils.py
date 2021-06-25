@@ -84,6 +84,11 @@ def fp_network_map(
     #  Store headwater reach and upstream reaches above a junction
     #  as well as downstream reach after a junction
     #  into python-extension-fortran variables.
+    print ("nrch_g")
+    print (nrch_g)
+    print ("frnw_col")
+    print (frnw_col)
+
     frnw_g = np.zeros((nrch_g, frnw_col), dtype=int)
     frj = -1
     for x in range(mx_jorder, -1, -1):

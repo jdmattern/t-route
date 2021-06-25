@@ -534,3 +534,144 @@ def build_subnetworks(connections, rconn, min_size, sources=None):
         subnetwork_master[net] = subnetworks
 
     return subnetwork_master
+
+
+
+def pretty(d, indent=0):
+   for key, value in d.items():
+      print('\t' * indent + str(key))
+      if isinstance(value, dict):
+         pretty(value, indent+1)
+      else:
+         print('\t' * (indent+1) + str(value))
+
+
+def printTree(tree, d = 1):
+  if (tree == None or len(tree) == 0):
+    print ("\t" * d, "-")
+  else:
+    for key, val in tree.items():
+      if (isinstance(val, dict)):
+        print ("\t" * d, key)
+        self.printTree(val, d+1)
+      else:
+        #print ("\t" * d, key, str('(') + val + str(')'))
+        print ("\t" * d, key, str('(') + str(val) + str(')'))
+
+
+def build_subnetworks_btw_reservoirs(connections, rconn, wbodies, sources=None):
+    
+    """
+    Isolate subnetworks between reservoirs using a breadth-first-search
+    Arguments:
+        connections (dict): downstream network conenctions
+        rconn (dict): upstream network connections
+        wbodies (dict): {stream segment IDs in a waterbody: water body ID that segments are in}
+        sources (set): list of segments from which to begin searching, these should be network tailwaters
+    Returns:
+        subnetwork_master (dict): ordered networks or streams or reservoirs
+    """
+    print ("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+    print ("connections")
+    print (connections)
+    print ("\n\n")
+    #printTree (connections)
+    #pretty (connections)
+    print ("\n\n")
+    print ("rconn")
+    print (rconn)
+    print ("\n\n")
+    #printTree (rconn)
+    #pretty (rconn)
+    print ("\n\n")
+    print ("wbodies")
+    print (wbodies) 
+    print ("\n\n")
+    #pretty (wbodies) 
+    #printTree (wbodies) 
+    print ("\n\n")
+
+     # if no sources provided, use tailwaters
+    if sources is None:
+        # identify tailwaters
+        #sources = nhd_network.headwaters(rconn)
+        sources = headwaters(rconn)
+
+    print ("sources")
+    print (sources)
+
+
+    # create a list of all headwater and reservoirs in the network
+    #all_hws = nhd_network.headwaters(connections)
+    all_hws = headwaters(connections)
+    all_wbodies = set(wbodies.values())
+
+    print ("all_hws")
+    print (all_hws)
+
+
+    # serach targets are all headwaters or water bodeas that are not also sources
+    targets = [x for x in set.union(all_hws, all_wbodies) if x not in sources]
+
+    networks_with_subnetworks_ordered = {}
+    for net in sources:
+        print ("net")
+        print (net)
+
+
+        new_sources = set([net])
+        subnetworks = {}
+        group_order = 0
+
+        while new_sources:
+
+            rv = {}
+            reached_wbodies = set()
+            for h in new_sources:
+                reach = set()
+                Q = deque([h])
+                while Q:
+                    x = Q.popleft()
+
+                    if x not in all_wbodies:
+                        reach.add(x)
+                    else:
+                        reached_wbodies.add(x)
+
+                    if x not in targets:
+                        Q.extend(rconn.get(x, ()))
+
+                rv[h] = reach
+
+            new_sources = set()
+            new_sources.update(reached_wbodies)
+
+            targets = [x for x in targets if x not in reached_wbodies]
+            all_wbodies = [x for x in all_wbodies if x not in reached_wbodies]
+
+            # append master dictionary
+
+            subnetworks[group_order] = rv # stream network
+            
+            #if new_sources:
+            #    subnetworks[group_order+1] = {"reservoirs": new_sources} # reservoirs
+            
+            # advance group order
+            #group_order += 2
+            group_order += 1
+
+        networks_with_subnetworks_ordered[net] = subnetworks
+
+    return networks_with_subnetworks_ordered
+    
+    ''' 
+    # create a dictionary of ordered subnetworks
+    subnetwork_master = defaultdict(dict)
+    for tw, ordered_network in networks_with_subnetworks_ordered.items():
+        #intw = independent_networks[tw]
+        for order, subnet_sets in ordered_network.items():
+            subnetwork_master[order].update(subnet_sets)
+    
+    return subnetwork_master
+    '''
+ 

@@ -214,6 +214,13 @@ def parity_check(
     )
     flowveldepth = flowveldepth.sort_index()
 
+    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    print ("flowveldepth")
+    print (flowveldepth)
+    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+
+
     flows = flowveldepth.loc[:, (slice(None), "q")]
     flows = flows.T.reset_index(level=[0, 1])
     flows.rename(columns={"level_0": "Timestep", "level_1": "Parameter"}, inplace=True)
