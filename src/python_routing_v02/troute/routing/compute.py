@@ -553,9 +553,20 @@ def compute_nhd_routing_v02(
             print("PARALLEL TIME %s seconds." % (time.time() - start_para_time))
 
     elif parallel_compute_method == "by-subnetwork-diffusive":
-        networks_with_subnetworks_ordered_jit = nhd_network.build_subnetworks_btw_reservoirs(
-            connections, rconn, wbodies, sources=None
+        #networks_with_subnetworks_ordered_jit = nhd_network.build_subnetworks_btw_reservoirs(
+        reaches_ordered_bysubntw, subnetworks, subnetworks_only_ordered_jit = nhd_network.build_subnetworks_btw_reservoirs(
+            connections, rconn, wbodies, independent_networks, sources=None
         )
+
+        print("subnetworks")
+        print(subnetworks)
+        #raise ValueError
+
+        print ("reaches_ordered_bysubntw")
+        print (reaches_ordered_bysubntw[2].keys())
+
+
+        '''
         subnetworks_only_ordered_jit = defaultdict(dict)
         subnetworks = defaultdict(dict)
         for tw, ordered_network in networks_with_subnetworks_ordered_jit.items():
@@ -581,6 +592,8 @@ def compute_nhd_routing_v02(
                 reaches_ordered_bysubntw[order][
                     subn_tw
                 ] = nhd_network.dfs_decomposition(rconn_subn, path_func)
+        '''
+
 
         if 1 == 1:
             print("JIT Preprocessing time %s seconds." % (time.time() - start_time))
@@ -591,11 +604,20 @@ def compute_nhd_routing_v02(
             results_subn = defaultdict(list)
             flowveldepth_interorder = {}
 
-            for order in range(max(subnetworks_only_ordered_jit.keys()), -1, -1):
+            #for order in range(max(subnetworks_only_ordered_jit.keys()), -1, -1):
+            for order in range(max(reaches_ordered_bysubntw.keys()), -1, -1):
                 jobs = []
                 for twi, (subn_tw, subn_reach_list) in enumerate(
                     reaches_ordered_bysubntw[order].items(), 1
                 ):
+                    #We can determin if this is a reservoir or stream network                   
+                    #subn_tw is 2nd level: can check here if reservoir or not
+                    #subn_reach_list 3rd level which is either a list of reaches or
+                    #a single reservoir
+
+                    #############
+                    #Maybe use something like below for boundary conditions btw reservoirs and reaches
+
                     # TODO: Confirm that a list here is best -- we are sorting,
                     # so a set might be sufficient/better
                     segs = list(chain.from_iterable(subn_reach_list))
@@ -606,11 +628,17 @@ def compute_nhd_routing_v02(
                             if us not in segs_set:
                                 offnetwork_upstreams.add(us)
 
+                    print ("offnetwork_upstreams")
+                    print (offnetwork_upstreams)
+                    print ("segs")
+                    print (segs)
+
                     segs.extend(offnetwork_upstreams)
                     
                     #print ("order")
                     #print (order)
-                    #print (segs)
+                    print ("segs")
+                    print (segs)
 
                     common_segs = list(param_df.index.intersection(segs))
                     wbodies_segs = set(segs).symmetric_difference(common_segs)
@@ -620,12 +648,32 @@ def compute_nhd_routing_v02(
 
                     reservoir_segment_flag = False                
 
-                    compute_func_switch = compute_func
-                    #compute_func_switch = compute_network_structured
+                    #compute_func_switch = compute_func
+                    compute_func_switch = compute_network_structured
 
                     if not waterbodies_df.empty:
+
                         lake_segs = list(waterbodies_df.index.intersection(segs))
+                        
+
+                        print ('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+                        print ("subn_tw")
+                        print (subn_tw)
+
+                        #lake_segs = list(waterbodies_df.index.intersection(subn_tw))
+
+                        #6/30
+                        #lake_segs = list(waterbodies_df.index.intersection([subn_tw]))
+
+                        #6/30
+                        #TypeError: 'int' object is not iterable
                         #lake_segs = list(waterbodies_df.index.intersection(set(subn_tw)))
+                        #################
+
+                        #NEW mon 6/28
+                        if subn_tw in waterbodies_df.index:
+                          reservoir_segment_flag = True
+                          compute_func_switch = compute_network_structured
 
                         #lake_segs = []
 
@@ -635,12 +683,12 @@ def compute_nhd_routing_v02(
                         #print("lake_segs")
                         #print(lake_segs)
 
-                        if len(lake_segs) == 1:
-                          reservoir_segment_flag = True
-                          compute_func_switch = compute_network_structured
+                        #if len(lake_segs) == 1:
+                        #  reservoir_segment_flag = True
+                        #  compute_func_switch = compute_network_structured
 
-                        elif len(lake_segs) > 1:
-                          print ("WARNING MORE THAN ONE RESERVOIR IN SUBNETWORK")
+                        #elif len(lake_segs) > 1:
+                        #  print ("WARNING MORE THAN ONE RESERVOIR IN SUBNETWORK")
                            
 
                         waterbodies_df_sub = waterbodies_df.loc[
@@ -682,7 +730,16 @@ def compute_nhd_routing_v02(
                         param_df_sub.index.tolist() + lake_segs
                     ).sort_index()
                     
-                    if order < max(subnetworks_only_ordered_jit.keys()):
+                    #if order < max(subnetworks_only_ordered_jit.keys()):
+                    #6/30
+                    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    print ("order")
+                    print (order)
+                    print ("param_df_sub_super")
+                    print (param_df_sub_super)
+
+
+                    if order < max(reaches_ordered_bysubntw.keys()):
                         for us_subn_tw in offnetwork_upstreams:
                             subn_tw_sortposition = param_df_sub_super.index.get_loc(
                                 us_subn_tw
@@ -741,8 +798,16 @@ def compute_nhd_routing_v02(
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
 
-                    #print ("jobs.append")
+                    print ("jobs.append")
                     #print(compute_func_switch)
+                    us: fvd
+                    for us, fvd in flowveldepth_interorder.items():
+                      print (us)                        
+                      print (fvd)                        
+                      
+                      if us in offnetwork_upstreams:
+                        print ("true")
+                        print (us)                        
 
                     jobs.append(
                         delayed(compute_func_switch)(
@@ -822,6 +887,7 @@ def compute_nhd_routing_v02(
 
         results = []
         for order in subnetworks_only_ordered_jit:
+        #for order in reaches_ordered_bysubntw:
             results.extend(results_subn[order])
 
         if 1 == 1:

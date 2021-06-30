@@ -298,7 +298,7 @@ def fp_qlat_map(
     return qlat_g
 
 
-def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, qlat_data, qlat_g):
+def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows, qlat_g):
     """
     Upstream boundary condition mapping between Python and Fortran
     
@@ -308,7 +308,7 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, qlat_data, qlat_g):
     pynw -- (dict) ordered reach head segments
     nrch_g -- (int) number of reaches in the network
     geo_index -- (ndarray of int64) row indices for geomorphic parameters data array (geo_data)
-    qlat_data -- (ndarray of float32) qlateral data (m3/sec)
+    upstream_inflows (ndarray of float32) upstream_inflows (m3/sec)
     qlat_g -- (ndarray of float32) qlateral array (m3/sec/m) 
     
     Returns
@@ -318,15 +318,21 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, qlat_data, qlat_g):
 
     ubcd_g = np.zeros((nts_ub_g, nrch_g))
     frj = -1
+
+    #loop over every segment in network
     for frj in range(nrch_g):
+        #if this is a head segment
         if frnw_g[frj, 2] == 0:  # the number of upstream reaches is zero.
             head_segment = pynw[frj]
             for tsi in range(0, nts_ub_g):
 
                 idx_segID = np.where(geo_index == head_segment)
 
-                ubcd_g[tsi, frj] = qlat_data[idx_segID, tsi]  # [m^3/s]
-                qlat_g[tsi, 0, frj] = 0.0
+                #ubcd_g[tsi, frj] = qlat_data[idx_segID, tsi]  # [m^3/s]
+                ubcd_g[tsi, frj] = upstream_inflows[idx_segID, tsi]  # [m^3/s]
+    
+               #Get rid of qlat_g right?
+               #qlat_g[tsi, 0, frj] = 0.0
 
     return ubcd_g
 
