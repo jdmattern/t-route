@@ -270,6 +270,11 @@ def compute_nhd_routing_v02(
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
 
+                    #To handle edge case when the offnetwork upstream is a reservoir
+                    q0_sub.loc[lake_segs,"qu0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"qd0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"h0"] = waterbodies_df.loc[lake_segs,"h0"]
+
                     # results_subn[order].append(
                     #     compute_func(
                     jobs.append(
@@ -493,6 +498,33 @@ def compute_nhd_routing_v02(
                     ).sort_index()
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
+                    
+                    print ("jobs.append")
+                    #print(compute_func_switch)
+                    us: fvd
+                    for us, fvd in flowveldepth_interorder.items():
+                      print ("us")                        
+                      print (us)                        
+                      print ("fvd")                        
+                      print (fvd)                        
+                      
+                      if us in offnetwork_upstreams:
+                        print ("true")
+                        print ("us")                        
+                        print (us)                        
+
+
+                    print ("param_df_sub")
+                    print (param_df_sub)
+                    print ("q0_sub")
+                    print (q0_sub)
+
+                    print ("$$$$$$$$$$$$$$$$$$$$$$")
+                    
+                    #To handle edge case when the offnetwork upstream is a reservoir
+                    q0_sub.loc[lake_segs,"qu0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"qd0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"h0"] = waterbodies_df.loc[lake_segs,"h0"]
 
                     jobs.append(
                         delayed(compute_func)(
@@ -798,16 +830,39 @@ def compute_nhd_routing_v02(
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
 
+                    #To handle edge case when the offnetwork upstream is a reservoir
+                    q0_sub.loc[lake_segs,"qu0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"qd0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                    q0_sub.loc[lake_segs,"h0"] = waterbodies_df.loc[lake_segs,"h0"]
+
+                    print ('waterbodies_df.loc[lake_segs,"qd0"]')
+                    print (waterbodies_df.loc[lake_segs,"qd0"])
+
+
+
                     print ("jobs.append")
                     #print(compute_func_switch)
                     us: fvd
                     for us, fvd in flowveldepth_interorder.items():
+                      print ("us")                        
                       print (us)                        
+                      print ("fvd")                        
                       print (fvd)                        
                       
                       if us in offnetwork_upstreams:
                         print ("true")
+                        print ("us")                        
                         print (us)                        
+
+                    print ("param_df_sub")
+                    print (param_df_sub)
+
+                    print ("q0_sub")
+                    print (q0_sub)
+
+
+                    print ("$$$$$$$$$$$$$$$$$$$$$$")
+
 
                     jobs.append(
                         delayed(compute_func_switch)(
@@ -999,6 +1054,11 @@ def compute_nhd_routing_v02(
                 ).sort_index()
                 qlat_sub = qlat_sub.reindex(param_df_sub.index)
                 q0_sub = q0_sub.reindex(param_df_sub.index)
+
+                #To handle edge case when the offnetwork upstream is a reservoir
+                q0_sub.loc[lake_segs,"qu0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                q0_sub.loc[lake_segs,"qd0"] = waterbodies_df.loc[lake_segs,"qd0"]
+                q0_sub.loc[lake_segs,"h0"] = waterbodies_df.loc[lake_segs,"h0"]
 
                 jobs.append(
                     delayed(compute_func)(
