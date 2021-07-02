@@ -1216,8 +1216,7 @@ cpdef object compute_network_structured(
     cdef float reservoir_outflow, reservoir_water_elevation
     cdef int id = 0
     #Run time
-    #with nogil:
-    if 1 == 1:
+    with nogil:
       while timestep < nsteps+1:
         for i in range(num_reaches):
               r = &reach_structs[i]
@@ -1252,7 +1251,6 @@ cpdef object compute_network_structured(
                 flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
 
               else:
-                print ("Create compute reach kernel input buffer")
                 #Create compute reach kernel input buffer
                 for i in range(r.reach.mc_reach.num_segments):
                   segment = get_mc_segment(r, i)#r._segments[i]
@@ -1269,14 +1267,6 @@ cpdef object compute_network_structured(
                   buf_view[i, 10] = flowveldepth[segment.id, timestep-1, 0]
                   buf_view[i, 11] = 0.0 #flowveldepth[segment.id, timestep-1, 1]
                   buf_view[i, 12] = flowveldepth[segment.id, timestep-1, 2]
-
-                  print ("buf_view")
-                  print (buf_view)
-
-                print ("previous_upstream_flows")
-                print (previous_upstream_flows)
-                print ("upstream_flows")
-                print (upstream_flows)
 
                 compute_reach_kernel(previous_upstream_flows, upstream_flows,
                                      r.reach.mc_reach.num_segments, buf_view,

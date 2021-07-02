@@ -316,11 +316,23 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows, qla
     ubcd_g -- (ndarray of float32) upstream boundary data (m3/sec)
     """
 
+    print ("frnw_g")
+    print (frnw_g)
+    print ("pynw")
+    print (pynw)
+    print ("nrch_g")
+    print (nrch_g)
+    print ("upstream_inflows")
+    print (upstream_inflows)
+
     ubcd_g = np.zeros((nts_ub_g, nrch_g))
     frj = -1
 
     #loop over every segment in network
     for frj in range(nrch_g):
+        print ("frj")
+        print (frj)
+
         #if this is a head segment
         if frnw_g[frj, 2] == 0:  # the number of upstream reaches is zero.
             head_segment = pynw[frj]
@@ -431,6 +443,10 @@ def diffusive_input_data_v02(
     geo_data,
     qlat_data,
 ):
+    print ("------------------------------------")
+    print ("tw")
+    print (tw)
+
     """
     Build input data objects for diffusive wave model
     
