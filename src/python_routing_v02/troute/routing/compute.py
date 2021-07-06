@@ -841,14 +841,6 @@ def compute_nhd_routing_v02(
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
 
-
-                    if not waterbodies_df.empty:
-                        #To handle edge case when the offnetwork upstream is a reservoir
-                        q0_sub.loc[lake_segs,"qu0"] = waterbodies_df.loc[lake_segs,"qd0"]
-                        q0_sub.loc[lake_segs,"qd0"] = waterbodies_df.loc[lake_segs,"qd0"]
-                        q0_sub.loc[lake_segs,"h0"] = waterbodies_df.loc[lake_segs,"h0"]
-
-
                     print ("jobs.append")
                     print(compute_func_switch)
                     us: fvd
