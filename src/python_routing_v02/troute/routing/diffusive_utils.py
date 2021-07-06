@@ -511,9 +511,34 @@ def diffusive_input_data_v02(
         if nnodes > mxncomp_g:
             mxncomp_g = nnodes
 
+    # edit rconn dict values to remove any values above reservoir tailwaters. 
+    # how to quickly find reservoir values in the rconn dictionary?
+        # search the connections dictionary for reservoir segments, that will give you the downstream segments
+        # for all connections in wbodies, give me the reverse connections
+        # will need to pass wbodies df (list)
+#     import pdb; pdb.set_trace()
+    
+    # attn - this is a hack for issues in dfs_decomposition_depth_tuple
+    # generalize these lines to replace rconn values for segs below reservoirs with [ ]
+    # need to pass waterbody list down to this level
+    
+    if 6227150 in rconn:
+        # rconn[6227150] is the reservoir, we are replacing that value with [ ], here.
+        rconn[6227150] = []
+ 
+    
+    
+    
     # Order reaches by junction depth
     path_func = partial(nhd_network.split_at_junction, rconn)
     tr = nhd_network.dfs_decomposition_depth_tuple(rconn, path_func)
+    
+#     if 6227150 in rconn:
+#         rconn[6227150].pop()
+    
+    print("tr")
+    print(tr)
+    
     jorder_reaches = sorted(tr, key=lambda x: x[0])
     mx_jorder = max(jorder_reaches)[0]  # maximum junction order of subnetwork of TW
 
