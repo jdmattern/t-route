@@ -706,8 +706,14 @@ def compute_nhd_routing_v02(
 
                         #NEW mon 6/28
                         if subn_tw in waterbodies_df.index:
-                          reservoir_segment_flag = True
-                          compute_func_switch = compute_network_structured
+                            reservoir_segment_flag = True
+                            compute_func_switch = compute_network_structured
+
+                        elif subnetworks[subn_tw].values() in waterbodies_df.index:
+                            print ("hit outflow")
+                            list (subnetworks[subn_tw].values()) 
+                            print (list (subnetworks[subn_tw].values()))
+
 
                         #lake_segs = []
 
@@ -771,6 +777,9 @@ def compute_nhd_routing_v02(
                     print (order)
                     print ("param_df_sub_super")
                     print (param_df_sub_super)
+
+                    if order < 0:
+                       print ("order less than zero ############")
 
 
                     if order < max(reaches_ordered_bysubntw.keys()):
