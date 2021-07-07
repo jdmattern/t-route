@@ -901,6 +901,7 @@ def compute_nhd_routing_v02(
                     print ("reservoir_downstream_segment_arr")
                     print (reservoir_downstream_segment_arr)
 
+                    '''
                     if reservoir_segment_flag:
                        pass
 
@@ -912,6 +913,8 @@ def compute_nhd_routing_v02(
 
                     else:
                        lake_segs = []
+
+                    '''
 
                     jobs.append(
                         delayed(compute_func_switch)(

@@ -353,6 +353,10 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows, qla
     print (nrch_g)
     print ("upstream_inflows")
     print (upstream_inflows)
+    print (geo_index)
+
+
+    #raise ValueError
 
     ubcd_g = np.zeros((nts_ub_g, nrch_g))
     frj = -1
@@ -365,15 +369,19 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows, qla
         #if this is a head segment
         if frnw_g[frj, 2] == 0:  # the number of upstream reaches is zero.
             head_segment = pynw[frj]
-            for tsi in range(0, nts_ub_g):
+            if head_segment in geo_index:
+                idx_segID = np.where(np.asarray(geo_index) == head_segment)
 
-                idx_segID = np.where(geo_index == head_segment)
+                for tsi in range(0, nts_ub_g):
 
-                #ubcd_g[tsi, frj] = qlat_data[idx_segID, tsi]  # [m^3/s]
-                ubcd_g[tsi, frj] = upstream_inflows[idx_segID, tsi]  # [m^3/s]
+                    #idx_segID = np.where(np.asarray(geo_index) == head_segment)
+                    #idx_segID = np.where(geo_index == head_segment)
+
+                    #ubcd_g[tsi, frj] = qlat_data[idx_segID, tsi]  # [m^3/s]
+                    ubcd_g[tsi, frj] = upstream_inflows[idx_segID, tsi]  # [m^3/s]
     
-               #Get rid of qlat_g right?
-               #qlat_g[tsi, 0, frj] = 0.0
+                    #Get rid of qlat_g right?
+                    #qlat_g[tsi, 0, frj] = 0.0
 
     return ubcd_g
 
@@ -471,10 +479,18 @@ def diffusive_input_data_v02(
     geo_index,
     geo_data,
     qlat_data,
+    downstream_of_reservoir_list,
+    upstream_reservoir_flows,
 ):
     print ("------------------------------------")
     print ("tw")
     print (tw)
+
+    print ("downstream_of_reservoir_list")
+    print (downstream_of_reservoir_list)
+
+    print ("upstream_reservoir_flows in utils")
+    print (upstream_reservoir_flows)
 
     """
     Build input data objects for diffusive wave model
@@ -696,7 +712,7 @@ def diffusive_input_data_v02(
     #       Prepare upstream boundary (top segments of head basin reaches) data
     # ---------------------------------------------------------------------------------
     nts_ub_g = nts_ql_g
-    ubcd_g = fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, qlat_data, qlat_g)
+    ubcd_g = fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, downstream_of_reservoir_list, upstream_reservoir_flows, qlat_g)
     # ---------------------------------------------------------------------------------
     #                              Step 0-8
 

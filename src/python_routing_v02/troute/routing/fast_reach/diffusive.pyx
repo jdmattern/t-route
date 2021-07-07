@@ -130,6 +130,9 @@ cpdef object compute_diffusive_tst(
     dict diffusive_parameters=False
     ):
 
+
+
+
 # crack open the upstream_results dict and extract: 
 # 2001: flow dareservoir_downstream_segsta 
 # 1) 1-d(nwbodies) numpy array of segments for which upstream boundary condition data exists 
@@ -141,7 +144,11 @@ cpdef object compute_diffusive_tst(
 
     # If reservoir_downstream_segs is empty, then there is no upstream reservoir
     if not reservoir_downstream_segs:
-        pass
+        #pass
+        reservoir_ids = []
+
+        #Might move this above the if statement if not dependent on num of reservoirs
+        upstream_flow_array = np.zeros((1, nsteps), dtype='float32')
 
     else:
         #Right now, assuming only one reservoir in subnetwork
@@ -152,21 +159,53 @@ cpdef object compute_diffusive_tst(
         reservoir_id = rconn[reservoir_downstream_segs[0]][0]
 
         #Use below for a list of reservoir ids
-        #reservoir_ids = rconn[reservoir_downstream_segs[0]]
+        reservoir_ids = rconn[reservoir_downstream_segs[0]]
 
         print ("reservoir_id")
         print (reservoir_id)
 
         #Assuming one reservoir right now but will expand 
-        upstream_flow_array = np.zeros(1, int(nsteps))
+        upstream_flow_array = np.zeros((1, nsteps), dtype='float32')
+        #upstream_flow_array = np.zeros((1, nsteps))
         
         print ("upstream_results[reservoir_id]['results']")
         print (upstream_results[reservoir_id]['results'])
 
-
-
-
         #upstream_results[reservoir_id]['results']
+        qvd_ts_w = 3 
+
+        upstream_flow_array_index = 0
+
+        for upstream_tw_id in upstream_results:
+            tmp = upstream_results[upstream_tw_id]
+            print ("tmp")
+            print (tmp)
+            fill_index = tmp["position_index"]
+            #fill_index_mask[fill_index] = False
+            for idx, val in enumerate(tmp["results"]):
+                if idx%qvd_ts_w == 0:
+                   print ("flow: ", val)
+
+                   upstream_flow_array[0, upstream_flow_array_index] = val
+                   
+                   upstream_flow_array_index += 1
+    
+
+
+                '''
+                flowveldepth_nd[fill_index, (idx//qvd_ts_w) + 1, idx%qvd_ts_w] = val
+                if data_idx[fill_index]  in lake_numbers_col:
+                    res_idx = binary_find(lake_numbers_col, [data_idx[fill_index]])
+                    flowveldepth_nd[fill_index, 0, 0] = wbody_parameters[res_idx, 9] # TODO ref dataframe column label
+                else:
+
+                    flowveldepth_nd[fill_index, 0, 0] = init_array[fill_index, 0] # initial flow condition
+                    flowveldepth_nd[fill_index, 0, 2] = init_array[fill_index, 2] # initial depth condition
+                '''
+
+        print ("upstream_flow_array")
+        print (upstream_flow_array)
+
  
     print ("rconn in diff")
     print (rconn)
@@ -200,7 +239,11 @@ cpdef object compute_diffusive_tst(
         np.asarray(data_cols),
         np.asarray(data_idx),
         np.asarray(data_values),
-        np.asarray(qlat_values)
+        np.asarray(qlat_values),
+        #reservoir_downstream_segs,
+        upstream_results
+        #np.assarray(upstream_flow_array)
+        #upstream_flow_array
         )
 
     # unpack/declare diffusive input variables
