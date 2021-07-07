@@ -240,10 +240,8 @@ cpdef object compute_diffusive_tst(
         np.asarray(data_idx),
         np.asarray(data_values),
         np.asarray(qlat_values),
-        #reservoir_downstream_segs,
-        upstream_results
-        #np.assarray(upstream_flow_array)
-        #upstream_flow_array
+        upstream_results,
+        qts_subdivisions
         )
 
     # unpack/declare diffusive input variables
