@@ -352,6 +352,10 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows):
     print (nrch_g)
     print ("upstream_inflows")
     print (upstream_inflows)
+    print (geo_index)
+
+
+    #raise ValueError
 
     ubcd_g = np.zeros((nts_ub_g, nrch_g))
     frj = -1
@@ -476,6 +480,12 @@ def diffusive_input_data_v02(
     print ("------------------------------------")
     print ("tw")
     print (tw)
+
+    print ("downstream_of_reservoir_list")
+    print (downstream_of_reservoir_list)
+
+    print ("upstream_reservoir_flows in utils")
+    print (upstream_reservoir_flows)
 
     """
     Build input data objects for diffusive wave model
@@ -734,6 +744,7 @@ def diffusive_input_data_v02(
     # ---------------------------------------------------------------------------------
     nts_ub_g = nts_ql_g
     ubcd_g = fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, ds_seg, upstream_flow_array)
+
     # ---------------------------------------------------------------------------------
     #                              Step 0-8
 
