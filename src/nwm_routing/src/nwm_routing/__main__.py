@@ -566,6 +566,7 @@ def main_v02(argv):
         start_time = time.time()
     if verbose:
         print(f"Handling output ...")
+        print ("main")        
 
     if output_parameters:
         csv_output = output_parameters.get("csv_output", None)

@@ -114,7 +114,8 @@ cpdef object compute_diffusive_tst(
     const float[:,:] data_values,
     const float[:,:] initial_conditions,
     const float[:,:] qlat_values,
-    list lake_numbers_col,
+    #list lake_numbers_col,
+    list reservoir_downstream_segs, #rename to headwaters?
     const double[:,:] wbody_cols,
     dict waterbody_parameters,
     const int[:,:] reservoir_types,
@@ -129,8 +130,57 @@ cpdef object compute_diffusive_tst(
     dict diffusive_parameters=False
     ):
 
+# crack open the upstream_results dict and extract: 
+# 2001: flow dareservoir_downstream_segsta 
+# 1) 1-d(nwbodies) numpy array of segments for which upstream boundary condition data exists 
+# 2001 (reservoir) ----> 2002 (headwater), then we would want 2002 in the 1-d array mentioned above 
+#2002 
+# 2) 2-d(nwbodies, nts) numpy array of reservoir outflow data # [1,4,5,6,7,8,34,2] 
+# generate diffusive inputs 
+# TODO: add additional arguments that contain reservoir outflow data, wh
+
+    # If reservoir_downstream_segs is empty, then there is no upstream reservoir
+    if not reservoir_downstream_segs:
+        pass
+
+    else:
+        #Right now, assuming only one reservoir in subnetwork
+        print ("reservoir_downstream_segs in diff")
+        #print (lake_numbers_col)
+        print (reservoir_downstream_segs)
+
+        reservoir_id = rconn[reservoir_downstream_segs[0]][0]
+
+        #Use below for a list of reservoir ids
+        #reservoir_ids = rconn[reservoir_downstream_segs[0]]
+
+        print ("reservoir_id")
+        print (reservoir_id)
+
+        #Assuming one reservoir right now but will expand 
+        upstream_flow_array = np.zeros(1, int(nsteps))
+        
+        print ("upstream_results[reservoir_id]['results']")
+        print (upstream_results[reservoir_id]['results'])
+
+
+
+
+        #upstream_results[reservoir_id]['results']
+ 
+    print ("rconn in diff")
+    print (rconn)
+
     # segment connections dictionary
     connections = nhd_network.reverse_network(rconn)
+
+    print ("connections in diff")
+    print (connections)
+
+    print("upstream_results in diff")
+    print(upstream_results)
+
+
 
     # network tailwater
     tw = list(nhd_network.headwaters(rconn))[0]

@@ -193,10 +193,21 @@ def reachable_network(N, sources=None, targets=None, check_disjoint=True):
 
 
 def split_at_junction(network, path, node):
+    print ("split_at_junction")
+    print (network)
+    print (path)
+    print (node)
+
+
     return len(network[node]) == 1
 
 
 def split_at_waterbodies_and_junctions(waterbody_nodes, network, path, node):
+    print ("split_at_waterbodies_and_junctions")
+    print (network)
+    print (path)
+    print (node)
+
     if (path[-1] in waterbody_nodes) ^ (node in waterbody_nodes):
         return False  # force a path split if entering or exiting a waterbody
     else:
@@ -208,7 +219,6 @@ def dfs_decomposition_depth_tuple(N, path_func, source_nodes=None):
     Decompose network into lists of simply connected nodes
     For the routing problem, these sets of nodes are segments
     in a reach terminated by a junction, headwater, or tailwater.
-
     The function also identfies the network depth, by reach,
     of each reach and the output of the function is a list of tuples
     in the form: (network depth, [reach list]).

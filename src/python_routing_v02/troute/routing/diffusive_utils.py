@@ -84,6 +84,11 @@ def fp_network_map(
     #  Store headwater reach and upstream reaches above a junction
     #  as well as downstream reach after a junction
     #  into python-extension-fortran variables.
+    print ("$$$$$$$$$$")
+    print ("ordered_reaches")
+    print (ordered_reaches)
+
+
     print ("nrch_g")
     print (nrch_g)
     print ("frnw_col")
@@ -126,8 +131,32 @@ def fp_network_map(
                 # That is, -100 indicates the reach of the head segment is
                 # terminal downstream reach where ds.bcond. happens.
             else:
+
+                print ("^^^^^^^^^^^^^^^^")
+                print ("pynw")
+                print (pynw)
+
+
                 # reach after a junction
                 dsrch_hseg_id = reach["downstream_head_segment"]
+                print ("dsrch_hseg_id")
+                print (dsrch_hseg_id)
+
+                print ("frnw_g")
+                print (frnw_g)
+
+                print ("frj")
+                print (frj)
+
+                print ( "[j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]][0]")
+                print ( [
+                    j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
+                ])
+
+                print ( [
+                    j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
+                ][0])
+
                 # fortran j index equivalent to dsrchID.
                 frnw_g[frj, 1] = [
                     j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
@@ -512,6 +541,7 @@ def diffusive_input_data_v02(
         if nnodes > mxncomp_g:
             mxncomp_g = nnodes
 
+
     ds_seg = []
     upstream_flow_array = np.zeros((len(ds_seg), np.shape(qlat_data)[1]))
     if upstream_results:
@@ -545,9 +575,6 @@ def diffusive_input_data_v02(
         # rconn[6227150] is the reservoir, we are replacing that value with [ ], here.
         rconn[6227150] = []
  
-    
-    
-    
     # Order reaches by junction depth
     path_func = partial(nhd_network.split_at_junction, rconn)
     tr = nhd_network.dfs_decomposition_depth_tuple(rconn, path_func)
@@ -560,6 +587,16 @@ def diffusive_input_data_v02(
     
     jorder_reaches = sorted(tr, key=lambda x: x[0])
     mx_jorder = max(jorder_reaches)[0]  # maximum junction order of subnetwork of TW
+
+    print ("path_func")
+    print (path_func)
+    print ("rconn")
+    print (rconn)
+    print ("tr")
+    print (tr)
+    print ("jorder_reaches")
+    print (jorder_reaches)
+
 
     ordered_reaches = {}
     rchhead_reaches = {}
@@ -685,6 +722,10 @@ def diffusive_input_data_v02(
         qlat_data,
         qlat_g,
     )
+
+    print ("ordered_reaches")
+    print (ordered_reaches)
+
 
     # ---------------------------------------------------------------------------------
     #                              Step 0-7
