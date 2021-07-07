@@ -599,6 +599,14 @@ def compute_nhd_routing_v02(
         print ("reaches_ordered_bysubntw")
         print (reaches_ordered_bysubntw[2].keys())
 
+        print ("reaches_ordered_bysubntw full")
+        print (reaches_ordered_bysubntw)
+
+        print ("connections")
+        print (connections)
+
+        print ("rconn")
+        print (rconn)
 
         '''
         subnetworks_only_ordered_jit = defaultdict(dict)
@@ -638,6 +646,9 @@ def compute_nhd_routing_v02(
             results_subn = defaultdict(list)
             flowveldepth_interorder = {}
 
+            #reservoir_downstream_segment_arr = np.array([])
+            reservoir_downstream_segment_arr = []
+
             #for order in range(max(subnetworks_only_ordered_jit.keys()), -1, -1):
             for order in range(max(reaches_ordered_bysubntw.keys()), -1, -1):
                 jobs = []
@@ -647,7 +658,7 @@ def compute_nhd_routing_v02(
                     #We can determin if this is a reservoir or stream network                   
                     #subn_tw is 2nd level: can check here if reservoir or not
                     #subn_reach_list 3rd level which is either a list of reaches or
-                    #a single reservoir
+                    #a single reservoi
 
                     #############
                     #Maybe use something like below for boundary conditions btw reservoirs and reaches
@@ -682,6 +693,8 @@ def compute_nhd_routing_v02(
 
                     reservoir_segment_flag = False                
 
+
+
                     compute_func_switch = compute_func
                     #compute_func_switch = compute_network_structured
 
@@ -708,6 +721,14 @@ def compute_nhd_routing_v02(
                         if subn_tw in waterbodies_df.index:
                             reservoir_segment_flag = True
                             compute_func_switch = compute_network_structured
+
+                            reservoir_downstream_seg = connections[subn_tw][0]
+
+                            print ("reservoir_downstream_segment")
+                            print (reservoir_downstream_seg)
+                            
+                            #reservoir_downstream_segment_arr = np.append(reservoir_downstream_segment_arr, reservoir_downstream_seg) 
+                            reservoir_downstream_segment_arr.append(reservoir_downstream_seg)
 
                         elif subnetworks[subn_tw].values() in waterbodies_df.index:
                             print ("hit outflow")
@@ -843,13 +864,20 @@ def compute_nhd_routing_v02(
 
                     print ("jobs.append")
                     print(compute_func_switch)
+                    #for twi, (subn_tw, subn_reach_list) in enumerate(
+                    print (twi)
+                    print (subn_tw)
+                    print (subn_reach_list)
                     us: fvd
                     for us, fvd in flowveldepth_interorder.items():
                       print ("us")                        
                       print (us)                        
                       print ("fvd")                        
                       print (fvd)                        
-                      
+                     
+                      if us == 6227150:
+                        print ("!!!!!!!!!!!!")
+ 
                       if us in offnetwork_upstreams:
                         print ("true")
                         print ("us")                        
@@ -863,7 +891,27 @@ def compute_nhd_routing_v02(
 
 
                     print ("$$$$$$$$$$$$$$$$$$$$$$")
+                    print ("compute_func_switch")
+                    print (compute_func_switch)
 
+                    print ("subn_reach_list_with_type")
+                    print (subn_reach_list_with_type)
+                    print (subn_reach_list_with_type[0][0][0])
+
+                    print ("reservoir_downstream_segment_arr")
+                    print (reservoir_downstream_segment_arr)
+
+                    if reservoir_segment_flag:
+                       pass
+
+                    elif subn_reach_list_with_type[0][0][0] in reservoir_downstream_segment_arr:
+                       print ("found ds seg")
+
+                       #Overload lake_segs for diffusive to hold list of segs downstream of reservoir
+                       lake_segs = reservoir_downstream_segment_arr
+
+                    else:
+                       lake_segs = []
 
                     jobs.append(
                         delayed(compute_func_switch)(

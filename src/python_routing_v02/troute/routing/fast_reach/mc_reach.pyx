@@ -1082,6 +1082,7 @@ cpdef object compute_network_structured(
             my_id = binary_find(data_idx, reach)
             #Reservoirs should be singleton list reaches, TODO enforce that here?
 
+            #From Adam's current PR #345 to master
             # write initial reservoir flows to flowveldepth array
             flowveldepth_nd[my_id, 0, 0] = wbody_parameters[wbody_index, 9] 
             # TODO ref dataframe column label list, rather than hard-coded number
@@ -1205,6 +1206,10 @@ cpdef object compute_network_structured(
                 flowveldepth_nd[fill_index, 0, 0] = init_array[fill_index, 0] # initial flow condition
                 flowveldepth_nd[fill_index, 0, 2] = init_array[fill_index, 2] # initial depth condition
 
+    print ("flowveldepth_nd in mc")
+    print (flowveldepth_nd)
+
+
     #Init buffers
     lateral_flows = np.zeros( max_buff_size, dtype='float32' )
     buf_view = np.zeros( (max_buff_size, 13), dtype='float32')
@@ -1224,7 +1229,8 @@ cpdef object compute_network_structured(
     cdef float reservoir_outflow, reservoir_water_elevation
     cdef int id = 0
     #Run time
-    with nogil:
+    #with nogil:
+    if 1==1:
       while timestep < nsteps+1:
         for i in range(num_reaches):
               r = &reach_structs[i]
@@ -1236,6 +1242,10 @@ cpdef object compute_network_structured(
                 id = r._upstream_ids[_i]
                 upstream_flows += flowveldepth[id, timestep, 0]
                 previous_upstream_flows += flowveldepth[id, timestep-1, 0]
+
+              print ("mc reach upstream_flows")
+              print (upstream_flows)
+
 
               if assume_short_ts:
                 upstream_flows = previous_upstream_flows
