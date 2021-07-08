@@ -481,11 +481,11 @@ def diffusive_input_data_v02(
     print ("tw")
     print (tw)
 
-    print ("downstream_of_reservoir_list")
-    print (downstream_of_reservoir_list)
+    #print ("downstream_of_reservoir_list")
+    #print (downstream_of_reservoir_list)
 
-    print ("upstream_reservoir_flows in utils")
-    print (upstream_reservoir_flows)
+    #print ("upstream_reservoir_flows in utils")
+    #print (upstream_reservoir_flows)
 
     """
     Build input data objects for diffusive wave model

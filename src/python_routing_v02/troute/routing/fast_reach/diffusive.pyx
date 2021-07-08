@@ -142,6 +142,8 @@ cpdef object compute_diffusive_tst(
 # generate diffusive inputs 
 # TODO: add additional arguments that contain reservoir outflow data, wh
 
+
+    '''
     # If reservoir_downstream_segs is empty, then there is no upstream reservoir
     if not reservoir_downstream_segs:
         #pass
@@ -189,10 +191,10 @@ cpdef object compute_diffusive_tst(
                    upstream_flow_array[0, upstream_flow_array_index] = val
                    
                    upstream_flow_array_index += 1
-    
+    '''
 
 
-                '''
+    '''
                 flowveldepth_nd[fill_index, (idx//qvd_ts_w) + 1, idx%qvd_ts_w] = val
                 if data_idx[fill_index]  in lake_numbers_col:
                     res_idx = binary_find(lake_numbers_col, [data_idx[fill_index]])
@@ -201,10 +203,10 @@ cpdef object compute_diffusive_tst(
 
                     flowveldepth_nd[fill_index, 0, 0] = init_array[fill_index, 0] # initial flow condition
                     flowveldepth_nd[fill_index, 0, 2] = init_array[fill_index, 2] # initial depth condition
-                '''
+    '''
 
-        print ("upstream_flow_array")
-        print (upstream_flow_array)
+        #print ("upstream_flow_array")
+        #print (upstream_flow_array)
 
  
     print ("rconn in diff")
