@@ -84,16 +84,6 @@ def fp_network_map(
     #  Store headwater reach and upstream reaches above a junction
     #  as well as downstream reach after a junction
     #  into python-extension-fortran variables.
-    print ("$$$$$$$$$$")
-    print ("ordered_reaches")
-    print (ordered_reaches)
-
-
-    print ("nrch_g")
-    print (nrch_g)
-    print ("frnw_col")
-    print (frnw_col)
-
     frnw_g = np.zeros((nrch_g, frnw_col), dtype=int)
     frj = -1
     for x in range(mx_jorder, -1, -1):
@@ -131,32 +121,8 @@ def fp_network_map(
                 # That is, -100 indicates the reach of the head segment is
                 # terminal downstream reach where ds.bcond. happens.
             else:
-
-                print ("^^^^^^^^^^^^^^^^")
-                print ("pynw")
-                print (pynw)
-
-
                 # reach after a junction
                 dsrch_hseg_id = reach["downstream_head_segment"]
-                print ("dsrch_hseg_id")
-                print (dsrch_hseg_id)
-
-                print ("frnw_g")
-                print (frnw_g)
-
-                print ("frj")
-                print (frj)
-
-                print ( "[j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]][0]")
-                print ( [
-                    j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
-                ])
-
-                print ( [
-                    j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
-                ][0])
-
                 # fortran j index equivalent to dsrchID.
                 frnw_g[frj, 1] = [
                     j for j, sid in pynw.items() if sid == dsrch_hseg_id[0]
@@ -344,19 +310,6 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows):
     ubcd_g -- (ndarray of float32) upstream boundary data (m3/sec)
     """
 
-    print ("frnw_g")
-    print (frnw_g)
-    print ("pynw")
-    print (pynw)
-    print ("nrch_g")
-    print (nrch_g)
-    print ("upstream_inflows")
-    print (upstream_inflows)
-    print (geo_index)
-
-
-    #raise ValueError
-
     ubcd_g = np.zeros((nts_ub_g, nrch_g))
     frj = -1
 
@@ -375,8 +328,6 @@ def fp_ubcd_map(frnw_g, pynw, nts_ub_g, nrch_g, geo_index, upstream_inflows):
                 for tsi in range(0, nts_ub_g):
                     
                     ubcd_g[tsi, frj] = upstream_inflows[idx_segID, tsi]  # [m^3/s]
-                    
-#                 import pdb; pdb.set_trace()
 
     return ubcd_g
 
@@ -477,16 +428,6 @@ def diffusive_input_data_v02(
     upstream_results,
     qts_subdivisions
 ):
-    print ("------------------------------------")
-    print ("tw")
-    print (tw)
-
-    #print ("downstream_of_reservoir_list")
-    #print (downstream_of_reservoir_list)
-
-    #print ("upstream_reservoir_flows in utils")
-    #print (upstream_reservoir_flows)
-
     """
     Build input data objects for diffusive wave model
     
@@ -501,7 +442,9 @@ def diffusive_input_data_v02(
     geo_index -- (ndarray of int64s) row indices for geomorphic parameters data array (geo_data)
     geo_data --(ndarray of float32s) geomorphic parameters data array
     qlat_data -- (ndarray of float32) qlateral data (m3/sec)
-    
+    upstream_results -- (dict) with values of 1d arrays upstream flow, velocity, and depth   
+    qts_subdivisions -- (int) number of qlateral timestep subdivisions 
+ 
     Returns
     -------
     diff_ins -- (dict) formatted inputs for diffusive wave model
@@ -592,21 +535,8 @@ def diffusive_input_data_v02(
 #     if 6227150 in rconn:
 #         rconn[6227150].pop()
     
-    print("tr")
-    print(tr)
-    
     jorder_reaches = sorted(tr, key=lambda x: x[0])
     mx_jorder = max(jorder_reaches)[0]  # maximum junction order of subnetwork of TW
-
-    print ("path_func")
-    print (path_func)
-    print ("rconn")
-    print (rconn)
-    print ("tr")
-    print (tr)
-    print ("jorder_reaches")
-    print (jorder_reaches)
-
 
     ordered_reaches = {}
     rchhead_reaches = {}
@@ -732,10 +662,6 @@ def diffusive_input_data_v02(
         qlat_data,
         qlat_g,
     )
-
-    print ("ordered_reaches")
-    print (ordered_reaches)
-
 
     # ---------------------------------------------------------------------------------
     #                              Step 0-7

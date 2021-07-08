@@ -53,8 +53,6 @@ def compute_nhd_routing_v02(
     waterbody_type_specified,
     diffusive_parameters=None,
 ):
-    print ("wbodies")
-    print (wbodies)
 
     param_df["dt"] = dt
     param_df = param_df.astype("float32")
@@ -499,28 +497,6 @@ def compute_nhd_routing_v02(
                     ).sort_index()
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
-                    
-                    print ("jobs.append")
-                    #print(compute_func_switch)
-                    us: fvd
-                    for us, fvd in flowveldepth_interorder.items():
-                      print ("us")                        
-                      print (us)                        
-                      print ("fvd")                        
-                      print (fvd)                        
-                      
-                      if us in offnetwork_upstreams:
-                        print ("true")
-                        print ("us")                        
-                        print (us)                        
-
-
-                    print ("param_df_sub")
-                    print (param_df_sub)
-                    print ("q0_sub")
-                    print (q0_sub)
-
-                    print ("$$$$$$$$$$$$$$$$$$$$$$")
 
                     if not waterbodies_df.empty:
                         #To handle edge case when the offnetwork upstream is a reservoir
@@ -587,55 +563,9 @@ def compute_nhd_routing_v02(
             print("PARALLEL TIME %s seconds." % (time.time() - start_para_time))
 
     elif parallel_compute_method == "by-subnetwork-diffusive":
-        #networks_with_subnetworks_ordered_jit = nhd_network.build_subnetworks_btw_reservoirs(
         reaches_ordered_bysubntw, subnetworks, subnetworks_only_ordered_jit = nhd_network.build_subnetworks_btw_reservoirs(
             connections, rconn, wbodies, independent_networks, sources=None
         )
-
-        print("subnetworks")
-        print(subnetworks)
-        #raise ValueError
-
-        print ("reaches_ordered_bysubntw")
-        print (reaches_ordered_bysubntw[2].keys())
-
-        print ("reaches_ordered_bysubntw full")
-        print (reaches_ordered_bysubntw)
-
-        print ("connections")
-        print (connections)
-
-        print ("rconn")
-        print (rconn)
-
-        '''
-        subnetworks_only_ordered_jit = defaultdict(dict)
-        subnetworks = defaultdict(dict)
-        for tw, ordered_network in networks_with_subnetworks_ordered_jit.items():
-            intw = independent_networks[tw]
-            for order, subnet_sets in ordered_network.items():
-                subnetworks_only_ordered_jit[order].update(subnet_sets)
-                for subn_tw, subnetwork in subnet_sets.items():
-                    subnetworks[subn_tw] = {k: intw[k] for k in subnetwork}
-
-        reaches_ordered_bysubntw = defaultdict(dict)
-        for order, ordered_subn_dict in subnetworks_only_ordered_jit.items():
-            for subn_tw, subnet in ordered_subn_dict.items():
-                conn_subn = {k: connections[k] for k in subnet if k in connections}
-                rconn_subn = {k: rconn[k] for k in subnet if k in rconn}
-                if waterbodies_df.empty:
-                    path_func = partial(nhd_network.split_at_junction, rconn_subn)
-                else:
-                    path_func = partial(
-                        nhd_network.split_at_waterbodies_and_junctions,
-                        list(waterbodies_df.index.values),
-                        rconn_subn
-                        )
-                reaches_ordered_bysubntw[order][
-                    subn_tw
-                ] = nhd_network.dfs_decomposition(rconn_subn, path_func)
-        '''
-
 
         if 1 == 1:
             print("JIT Preprocessing time %s seconds." % (time.time() - start_time))
@@ -646,23 +576,11 @@ def compute_nhd_routing_v02(
             results_subn = defaultdict(list)
             flowveldepth_interorder = {}
 
-            #reservoir_downstream_segment_arr = np.array([])
-            reservoir_downstream_segment_arr = []
-
-            #for order in range(max(subnetworks_only_ordered_jit.keys()), -1, -1):
             for order in range(max(reaches_ordered_bysubntw.keys()), -1, -1):
                 jobs = []
                 for twi, (subn_tw, subn_reach_list) in enumerate(
                     reaches_ordered_bysubntw[order].items(), 1
                 ):
-                    #We can determin if this is a reservoir or stream network                   
-                    #subn_tw is 2nd level: can check here if reservoir or not
-                    #subn_reach_list 3rd level which is either a list of reaches or
-                    #a single reservoi
-
-                    #############
-                    #Maybe use something like below for boundary conditions btw reservoirs and reaches
-
                     # TODO: Confirm that a list here is best -- we are sorting,
                     # so a set might be sufficient/better
                     segs = list(chain.from_iterable(subn_reach_list))
@@ -673,84 +591,30 @@ def compute_nhd_routing_v02(
                             if us not in segs_set:
                                 offnetwork_upstreams.add(us)
 
-                    print ("offnetwork_upstreams")
-                    print (offnetwork_upstreams)
-                    print ("segs")
-                    print (segs)
-
                     segs.extend(offnetwork_upstreams)
-                    
-                    #print ("order")
-                    #print (order)
-                    print ("segs")
-                    print (segs)
 
                     common_segs = list(param_df.index.intersection(segs))
                     wbodies_segs = set(segs).symmetric_difference(common_segs)
                     
-                    #Declare empty dataframe
+                    # Declare empty dataframe
                     waterbody_types_df_sub = pd.DataFrame()
 
-                    reservoir_segment_flag = False                
-
-
-
+                    # Set compute_func_switch to compute_func.
+                    # compute_func for this function should be set to "diffusive" 
                     compute_func_switch = compute_func
+
+                    # Can comment out above statement and uncomment below
+                    # if need to run compute_network_structured in mc_reach
+                    # for every subnetwork for debugging purposes.
                     #compute_func_switch = compute_network_structured
 
                     if not waterbodies_df.empty:
-
                         lake_segs = list(waterbodies_df.index.intersection(segs))
-                        
 
-                        print ('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-                        print ("subn_tw")
-                        print (subn_tw)
-
-                        #lake_segs = list(waterbodies_df.index.intersection(subn_tw))
-
-                        #6/30
-                        #lake_segs = list(waterbodies_df.index.intersection([subn_tw]))
-
-                        #6/30
-                        #TypeError: 'int' object is not iterable
-                        #lake_segs = list(waterbodies_df.index.intersection(set(subn_tw)))
-                        #################
-
-                        #NEW mon 6/28
                         if subn_tw in waterbodies_df.index:
-                            reservoir_segment_flag = True
+                            # Since this subn_tw is a resevoir, set compute_func_switch
+                            # to compute_network_structured.
                             compute_func_switch = compute_network_structured
-
-                            reservoir_downstream_seg = connections[subn_tw][0]
-
-                            print ("reservoir_downstream_segment")
-                            print (reservoir_downstream_seg)
-                            
-                            #reservoir_downstream_segment_arr = np.append(reservoir_downstream_segment_arr, reservoir_downstream_seg) 
-                            reservoir_downstream_segment_arr.append(reservoir_downstream_seg)
-
-                        elif subnetworks[subn_tw].values() in waterbodies_df.index:
-                            print ("hit outflow")
-                            list (subnetworks[subn_tw].values()) 
-                            print (list (subnetworks[subn_tw].values()))
-
-
-                        #lake_segs = []
-
-                        #if subn_tw == 6228110:
-                        #  lake_segs = [6228110]
-
-                        #print("lake_segs")
-                        #print(lake_segs)
-
-                        #if len(lake_segs) == 1:
-                        #  reservoir_segment_flag = True
-                        #  compute_func_switch = compute_network_structured
-
-                        #elif len(lake_segs) > 1:
-                        #  print ("WARNING MORE THAN ONE RESERVOIR IN SUBNETWORK")
-                           
 
                         waterbodies_df_sub = waterbodies_df.loc[
                             lake_segs,
@@ -790,18 +654,6 @@ def compute_nhd_routing_v02(
                     param_df_sub_super = param_df_sub.reindex(
                         param_df_sub.index.tolist() + lake_segs
                     ).sort_index()
-                    
-                    #if order < max(subnetworks_only_ordered_jit.keys()):
-                    #6/30
-                    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                    print ("order")
-                    print (order)
-                    print ("param_df_sub_super")
-                    print (param_df_sub_super)
-
-                    if order < 0:
-                       print ("order less than zero ############")
-
 
                     if order < max(reaches_ordered_bysubntw.keys()):
                         for us_subn_tw in offnetwork_upstreams:
@@ -862,60 +714,6 @@ def compute_nhd_routing_v02(
                     qlat_sub = qlat_sub.reindex(param_df_sub.index)
                     q0_sub = q0_sub.reindex(param_df_sub.index)
 
-                    print ("jobs.append")
-                    print(compute_func_switch)
-                    #for twi, (subn_tw, subn_reach_list) in enumerate(
-                    print (twi)
-                    print (subn_tw)
-                    print (subn_reach_list)
-                    us: fvd
-                    for us, fvd in flowveldepth_interorder.items():
-                      print ("us")                        
-                      print (us)                        
-                      print ("fvd")                        
-                      print (fvd)                        
-                     
-                      if us == 6227150:
-                        print ("!!!!!!!!!!!!")
- 
-                      if us in offnetwork_upstreams:
-                        print ("true")
-                        print ("us")                        
-                        print (us)                        
-
-                    print ("param_df_sub")
-                    print (param_df_sub)
-
-                    print ("q0_sub")
-                    print (q0_sub)
-
-
-                    print ("$$$$$$$$$$$$$$$$$$$$$$")
-                    print ("compute_func_switch")
-                    print (compute_func_switch)
-
-                    print ("subn_reach_list_with_type")
-                    print (subn_reach_list_with_type)
-                    print (subn_reach_list_with_type[0][0][0])
-
-                    print ("reservoir_downstream_segment_arr")
-                    print (reservoir_downstream_segment_arr)
-
-                    '''
-                    if reservoir_segment_flag:
-                       pass
-
-                    elif subn_reach_list_with_type[0][0][0] in reservoir_downstream_segment_arr:
-                       print ("found ds seg")
-
-                       #Overload lake_segs for diffusive to hold list of segs downstream of reservoir
-                       lake_segs = reservoir_downstream_segment_arr
-
-                    else:
-                       lake_segs = []
-
-                    '''
-
                     jobs.append(
                         delayed(compute_func_switch)(
                             nts,
@@ -950,20 +748,12 @@ def compute_nhd_routing_v02(
 
                 results_subn[order] = parallel(jobs)
 
-
-                #if 1 == 1:
                 if order > 0:  # This is not needed for the last rank of subnetworks
                     flowveldepth_interorder = {}
                     for twi, subn_tw in enumerate(reaches_ordered_bysubntw[order]):
                         # TODO: This index step is necessary because we sort the segment index
                         # TODO: I think there are a number of ways we could remove the sorting step
                         #       -- the binary search could be replaced with an index based on the known topology
-                        print ("twi: ")
-                        print (twi)
-                        print (subn_tw)
-                        print (order)
-                        print ("-----------------------------------------------")                        
-
                         flowveldepth_interorder[subn_tw] = {}
                         subn_tw_sortposition = (
                             results_subn[order][twi][0].tolist().index(subn_tw)
@@ -971,25 +761,12 @@ def compute_nhd_routing_v02(
                         flowveldepth_interorder[subn_tw]["results"] = results_subn[
                             order
                         ][twi][1][subn_tw_sortposition]
-
-                        #print(flowveldepth_interorder[subn_tw]["results"])
-
-                        #print(flowveldepth_interorder[subn_tw]["results"].size)
-                        #print(flowveldepth_interorder[subn_tw]["results"].shape)
-                        #print(results_subn[order][twi][1][subn_tw_sortposition].size)
-                        #print(results_subn[order][twi][1][subn_tw_sortposition].shape)
-                        #print("%%%%%%%%%%%%%%%%%%%%")
-                        #print(flowveldepth_interorder[subn_tw]["results"][0:20])
-                        #print("%%%%%%%%%%%%%%%%%%%%")
-                        #print(results_subn.keys())
-                        #print("--------")
                         # what will it take to get just the tw FVD values into an array to pass to the next loop?
                         # There will be an empty array initialized at the top of the loop, then re-populated here.
                         # we don't have to bother with populating it after the last group
 
         results = []
         for order in subnetworks_only_ordered_jit:
-        #for order in reaches_ordered_bysubntw:
             results.extend(results_subn[order])
 
         if 1 == 1:

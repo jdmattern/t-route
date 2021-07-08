@@ -1004,16 +1004,6 @@ cpdef object compute_network_structured(
     bint return_courant=False,
     dict diffusive_parameters=False,
     ):
-
-    print ("reaches_wTypes")
-    print (reaches_wTypes)
-
-    print ("upstream_connections")
-    print (upstream_connections)
-
-    print ("upstream_results")
-    print (upstream_results)
-
     """
     Compute network
     Args:
@@ -1082,10 +1072,8 @@ cpdef object compute_network_structured(
             my_id = binary_find(data_idx, reach)
             #Reservoirs should be singleton list reaches, TODO enforce that here?
 
-            #From Adam's current PR #345 to master
             # write initial reservoir flows to flowveldepth array
-            flowveldepth_nd[my_id, 0, 0] = wbody_parameters[wbody_index, 9] 
-            # TODO ref dataframe column label list, rather than hard-coded number
+            flowveldepth_nd[my_id, 0, 0] = wbody_parameters[wbody_index, 9] # TODO ref dataframe column label list, rather than hard-coded number
             
             #Check if reservoir_type is not specified, then initialize default Level Pool reservoir
             if (not reservoir_type_specified):
@@ -1151,10 +1139,6 @@ cpdef object compute_network_structured(
             segment_ids = binary_find(data_idx, reach)
             #Set the initial condtions before running loop
             flowveldepth_nd[segment_ids, 0] = init_array[segment_ids]
-
-            print ("flowveldepth_nd")
-            print (flowveldepth_nd)
-
             segment_objects = []
             #Find the max reach size, used to create buffer for compute_reach_kernel
             if len(segment_ids) > max_buff_size:
@@ -1193,8 +1177,6 @@ cpdef object compute_network_structured(
 
     for upstream_tw_id in upstream_results:
         tmp = upstream_results[upstream_tw_id]
-        print ("tmp")
-        print (tmp)
         fill_index = tmp["position_index"]
         fill_index_mask[fill_index] = False
         for idx, val in enumerate(tmp["results"]):
@@ -1205,10 +1187,6 @@ cpdef object compute_network_structured(
             else:
                 flowveldepth_nd[fill_index, 0, 0] = init_array[fill_index, 0] # initial flow condition
                 flowveldepth_nd[fill_index, 0, 2] = init_array[fill_index, 2] # initial depth condition
-
-    print ("flowveldepth_nd in mc")
-    print (flowveldepth_nd)
-
 
     #Init buffers
     lateral_flows = np.zeros( max_buff_size, dtype='float32' )
@@ -1229,8 +1207,7 @@ cpdef object compute_network_structured(
     cdef float reservoir_outflow, reservoir_water_elevation
     cdef int id = 0
     #Run time
-    #with nogil:
-    if 1==1:
+    with nogil:
       while timestep < nsteps+1:
         for i in range(num_reaches):
               r = &reach_structs[i]
@@ -1242,10 +1219,6 @@ cpdef object compute_network_structured(
                 id = r._upstream_ids[_i]
                 upstream_flows += flowveldepth[id, timestep, 0]
                 previous_upstream_flows += flowveldepth[id, timestep-1, 0]
-
-              print ("mc reach upstream_flows")
-              print (upstream_flows)
-
 
               if assume_short_ts:
                 upstream_flows = previous_upstream_flows
@@ -1313,8 +1286,4 @@ cpdef object compute_network_structured(
     #slice off the initial condition timestep and return
     output = np.asarray(flowveldepth[:,1:,:], dtype='float32')
     #return np.asarray(data_idx, dtype=np.intp), np.asarray(flowveldepth.base.reshape(flowveldepth.shape[0], -1), dtype='float32')
-
-    print ("output in mc_reach")
-    print (output)
-    print ("mc_reach")
     return np.asarray(data_idx, dtype=np.intp)[fill_index_mask], output.reshape(output.shape[0], -1)[fill_index_mask]

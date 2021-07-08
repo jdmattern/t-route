@@ -193,21 +193,10 @@ def reachable_network(N, sources=None, targets=None, check_disjoint=True):
 
 
 def split_at_junction(network, path, node):
-    print ("split_at_junction")
-    print (network)
-    print (path)
-    print (node)
-
-
     return len(network[node]) == 1
 
 
 def split_at_waterbodies_and_junctions(waterbody_nodes, network, path, node):
-    print ("split_at_waterbodies_and_junctions")
-    print (network)
-    print (path)
-    print (node)
-
     if (path[-1] in waterbody_nodes) ^ (node in waterbody_nodes):
         return False  # force a path split if entering or exiting a waterbody
     else:
@@ -219,6 +208,7 @@ def dfs_decomposition_depth_tuple(N, path_func, source_nodes=None):
     Decompose network into lists of simply connected nodes
     For the routing problem, these sets of nodes are segments
     in a reach terminated by a junction, headwater, or tailwater.
+
     The function also identfies the network depth, by reach,
     of each reach and the output of the function is a list of tuples
     in the form: (network depth, [reach list]).
@@ -546,29 +536,6 @@ def build_subnetworks(connections, rconn, min_size, sources=None):
     return subnetwork_master
 
 
-
-def pretty(d, indent=0):
-   for key, value in d.items():
-      print('\t' * indent + str(key))
-      if isinstance(value, dict):
-         pretty(value, indent+1)
-      else:
-         print('\t' * (indent+1) + str(value))
-
-
-def printTree(tree, d = 1):
-  if (tree == None or len(tree) == 0):
-    print ("\t" * d, "-")
-  else:
-    for key, val in tree.items():
-      if (isinstance(val, dict)):
-        print ("\t" * d, key)
-        self.printTree(val, d+1)
-      else:
-        #print ("\t" * d, key, str('(') + val + str(')'))
-        print ("\t" * d, key, str('(') + str(val) + str(')'))
-
-
 def build_subnetworks_btw_reservoirs(connections, rconn, wbodies, independent_networks, sources=None):
     """
     Isolate subnetworks between reservoirs using a breadth-first-search
@@ -583,52 +550,21 @@ def build_subnetworks_btw_reservoirs(connections, rconn, wbodies, independent_ne
                                       {[subnetwork tail water]: 
                                           [subnetwork segments]}}
     """    
-    print ("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-    print ("connections")
-    print (connections)
-    print ("\n\n")
-    #printTree (connections)
-    #pretty (connections)
-    print ("\n\n")
-    print ("rconn")
-    print (rconn)
-    print ("\n\n")
-    #printTree (rconn)
-    #pretty (rconn)
-    print ("\n\n")
-    print ("wbodies")
-    print (wbodies) 
-    print ("\n\n")
-    #pretty (wbodies) 
-    #printTree (wbodies) 
-    print ("\n\n")
 
      # if no sources provided, use tailwaters
     if sources is None:
         # identify tailwaters
         sources = headwaters(rconn)
 
-    print ("sources")
-    print (sources)
-
-
     # create a list of all headwater and reservoirs in the network
     all_hws = headwaters(connections)
     all_wbodies = set(wbodies.values())
 
-    print ("all_hws")
-    print (all_hws)
-
-
-    # serach targets are all headwaters or water bodeas that are not also sources
+    # search targets are all headwaters or water bodies that are not also sources
     targets = [x for x in set.union(all_hws, all_wbodies) if x not in sources]
 
     networks_with_subnetworks_ordered = {}
     for net in sources:
-        print ("net")
-        print (net)
-
-
         new_sources = set([net])
         subnetworks = {}
         group_order = 0
@@ -685,17 +621,14 @@ def build_subnetworks_btw_reservoirs(connections, rconn, wbodies, independent_ne
                 subnetworks[subn_tw] = {k: intw[k] for k in subnetwork}
 
     reaches_ordered_bysubntw = defaultdict(dict)
-    #for order, ordered_subn_dict in subnetworks_by_order.items():
+
     for order, ordered_subn_dict in subnetwork_master.items():
         for subn_tw, subnet in ordered_subn_dict.items():
             conn_subn = {k: connections[k] for k in subnet if k in connections}
             rconn_subn = {k: rconn[k] for k in subnet if k in rconn}
-            #path_func = partial(nhd_network.split_at_junction, rconn_subn)
             path_func = partial(split_at_junction, rconn_subn)
             reaches_ordered_bysubntw[order][
                 subn_tw
-            #] = nhd_network.dfs_decomposition(rconn_subn, path_func)
             ] = dfs_decomposition(rconn_subn, path_func)
             
     return reaches_ordered_bysubntw, subnetworks, subnetwork_master
- 

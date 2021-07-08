@@ -114,8 +114,7 @@ cpdef object compute_diffusive_tst(
     const float[:,:] data_values,
     const float[:,:] initial_conditions,
     const float[:,:] qlat_values,
-    #list lake_numbers_col,
-    list reservoir_downstream_segs, #rename to headwaters?
+    list lake_numbers_col,
     const double[:,:] wbody_cols,
     dict waterbody_parameters,
     const int[:,:] reservoir_types,
@@ -130,98 +129,8 @@ cpdef object compute_diffusive_tst(
     dict diffusive_parameters=False
     ):
 
-
-
-
-# crack open the upstream_results dict and extract: 
-# 2001: flow dareservoir_downstream_segsta 
-# 1) 1-d(nwbodies) numpy array of segments for which upstream boundary condition data exists 
-# 2001 (reservoir) ----> 2002 (headwater), then we would want 2002 in the 1-d array mentioned above 
-#2002 
-# 2) 2-d(nwbodies, nts) numpy array of reservoir outflow data # [1,4,5,6,7,8,34,2] 
-# generate diffusive inputs 
-# TODO: add additional arguments that contain reservoir outflow data, wh
-
-
-    '''
-    # If reservoir_downstream_segs is empty, then there is no upstream reservoir
-    if not reservoir_downstream_segs:
-        #pass
-        reservoir_ids = []
-
-        #Might move this above the if statement if not dependent on num of reservoirs
-        upstream_flow_array = np.zeros((1, nsteps), dtype='float32')
-
-    else:
-        #Right now, assuming only one reservoir in subnetwork
-        print ("reservoir_downstream_segs in diff")
-        #print (lake_numbers_col)
-        print (reservoir_downstream_segs)
-
-        reservoir_id = rconn[reservoir_downstream_segs[0]][0]
-
-        #Use below for a list of reservoir ids
-        reservoir_ids = rconn[reservoir_downstream_segs[0]]
-
-        print ("reservoir_id")
-        print (reservoir_id)
-
-        #Assuming one reservoir right now but will expand 
-        upstream_flow_array = np.zeros((1, nsteps), dtype='float32')
-        #upstream_flow_array = np.zeros((1, nsteps))
-        
-        print ("upstream_results[reservoir_id]['results']")
-        print (upstream_results[reservoir_id]['results'])
-
-        #upstream_results[reservoir_id]['results']
-        qvd_ts_w = 3 
-
-        upstream_flow_array_index = 0
-
-        for upstream_tw_id in upstream_results:
-            tmp = upstream_results[upstream_tw_id]
-            print ("tmp")
-            print (tmp)
-            fill_index = tmp["position_index"]
-            #fill_index_mask[fill_index] = False
-            for idx, val in enumerate(tmp["results"]):
-                if idx%qvd_ts_w == 0:
-                   print ("flow: ", val)
-
-                   upstream_flow_array[0, upstream_flow_array_index] = val
-                   
-                   upstream_flow_array_index += 1
-    '''
-
-
-    '''
-                flowveldepth_nd[fill_index, (idx//qvd_ts_w) + 1, idx%qvd_ts_w] = val
-                if data_idx[fill_index]  in lake_numbers_col:
-                    res_idx = binary_find(lake_numbers_col, [data_idx[fill_index]])
-                    flowveldepth_nd[fill_index, 0, 0] = wbody_parameters[res_idx, 9] # TODO ref dataframe column label
-                else:
-
-                    flowveldepth_nd[fill_index, 0, 0] = init_array[fill_index, 0] # initial flow condition
-                    flowveldepth_nd[fill_index, 0, 2] = init_array[fill_index, 2] # initial depth condition
-    '''
-
-        #print ("upstream_flow_array")
-        #print (upstream_flow_array)
-
- 
-    print ("rconn in diff")
-    print (rconn)
-
     # segment connections dictionary
     connections = nhd_network.reverse_network(rconn)
-
-    print ("connections in diff")
-    print (connections)
-
-    print("upstream_results in diff")
-    print(upstream_results)
-
-
 
     # network tailwater
     tw = list(nhd_network.headwaters(rconn))[0]

@@ -56,7 +56,6 @@ def nwm_output_generator(
         start_time = time.time()
     if verbose:
         print(f"Handling output ...")
-        print("output")
 
     csv_output = output_parameters.get("csv_output", None)
     if csv_output:
