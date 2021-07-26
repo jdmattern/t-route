@@ -323,7 +323,7 @@ def main_v02(argv):
         start_time = time.time()
 
     # STEP 1: Build basic network connections graph
-    connections, param_df, wbodies, gages = nnu.build_connections(
+    connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
         supernetwork_parameters
     )
     if break_network_at_waterbodies:
@@ -473,6 +473,7 @@ def main_v02(argv):
     qlats = nnu.build_qlateral_array(
         forcing_parameters,
         param_df.index,
+        ngen_nexus_id_to_downstream_comid_mapping_dict,
         nts,
         run_parameters.get("qts_subdivisions", 1),
     )

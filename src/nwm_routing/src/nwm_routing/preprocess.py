@@ -21,7 +21,7 @@ def nwm_network_preprocess(
 
     # STEP 1: Build basic network connections graph,
     # read network parameters, identify waterbodies and gages, if any.
-    connections, param_df, wbodies, gages = nnu.build_connections(
+    connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
         supernetwork_parameters,
     )
 
@@ -247,7 +247,7 @@ def nwm_forcing_preprocess(
     if verbose:
         print("creating qlateral array ...")
 
-    qlats_df = nnu.build_qlateral_array(run, segment_index,)
+    qlats_df = nnu.build_qlateral_array(run, segment_index, ngen_nexus_id_to_downstream_comid_mapping_dict)
 
     if verbose:
         print("qlateral array complete")
