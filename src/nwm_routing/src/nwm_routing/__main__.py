@@ -532,7 +532,7 @@ def main_v02(argv):
     # compute_func = fast_reach.compute_network_structured_obj
 
 
-    print ("param_df just before compute_nhd_routing_v02")
+    print ("param_df just before compute_nhd_routing_v02 in __main__")
     print (param_df)
 
     print ("param_df.dtypes")
@@ -544,7 +544,15 @@ def main_v02(argv):
 
     print ("111111111@@@@@@!!!!!!!")
 
+    total_hours = len(qlats.columns) 
 
+    print ("total_hours_in_main")
+    print (total_hours)
+
+    nts = total_hours * run_parameters.get("dt")
+
+    print ("nts_in_main")
+    print (nts)
 
 
     results = compute_nhd_routing_v02(
@@ -558,7 +566,8 @@ def main_v02(argv):
         # The default here might be the whole network or some percentage...
         run_parameters.get("cpu_pool", None),
         run_parameters.get("dt"),
-        run_parameters.get("nts", 1),
+        #run_parameters.get("nts", 1),
+        nts,
         run_parameters.get("qts_subdivisions", 1),
         independent_networks,
         param_df,

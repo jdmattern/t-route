@@ -58,7 +58,8 @@ cpdef object binary_find(object arr, object els):
         if arr[m] == el:
             idxs.append(m)
         else:
-            raise ValueError(f"element {el} not found in {np.asarray(arr)}")
+            #raise ValueError(f"element {el} not found in {np.asarray(arr)}")
+            print(f"element {el} not found in {np.asarray(arr)}")
     return idxs
 
 
@@ -1075,7 +1076,27 @@ cpdef object compute_network_structured(
             
             #Check if reservoir_type is not specified, then initialize default Level Pool reservoir
             if (not reservoir_type_specified):
-                
+               
+
+                print ("my_id")
+                print (my_id)
+
+                print ("my_id[0]")
+                print (my_id[0])
+
+                print ("wbody_index")
+                print (wbody_index)
+
+
+                print ("lake_numbers_col")
+                print (lake_numbers_col)
+
+
+
+                #print ("lake_numbers_col[wbody_index]")
+                #print (lake_numbers_col[wbody_index])
+
+                '''
                 #Add level pool reservoir object to reach_objects
                 reach_objects.append(
                     #tuple of MC_Reservoir, reach_type, and lp_reservoir
@@ -1083,6 +1104,7 @@ cpdef object compute_network_structured(
                                    array('l',upstream_ids), 
                                    wbody_parameters[wbody_index])
                     )
+                '''
                 wbody_index += 1
 
             else:
@@ -1205,7 +1227,11 @@ cpdef object compute_network_structured(
                 upstream_flows = previous_upstream_flows
 
               if r.type == compute_type.RESERVOIR_LP:
-                run_lp_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
+                #temp
+                reservoir_outflow = upstream_flows
+                reservoir_water_elevation = 0.0
+
+                #run_lp_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
                 flowveldepth[r.id, timestep, 0] = reservoir_outflow
                 flowveldepth[r.id, timestep, 1] = 0.0
                 flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
