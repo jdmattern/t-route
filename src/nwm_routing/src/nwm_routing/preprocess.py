@@ -13,6 +13,7 @@ def nwm_network_preprocess(
     verbose=False,
     debuglevel=0,
 ):
+    print ("nwm_network_preprocess")
 
     if verbose:
         print("creating supernetwork connections set")
@@ -225,6 +226,8 @@ def nwm_forcing_preprocess(
     verbose=False,
     debuglevel=0,
 ):
+    print ("nwm_forcing_preprocess")
+
 
     nts = forcing_parameters.get("nts", None)
     dt = forcing_parameters.get("dt", None)

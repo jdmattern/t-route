@@ -305,6 +305,9 @@ def main_v02(argv):
         coastal_parameters,
     ) = _input_handler_v02(args)
 
+    print ("main_v02")
+
+
     dt = run_parameters.get("dt", None)
     nts = run_parameters.get("nts", None)
     verbose = run_parameters.get("verbose", None)
@@ -528,6 +531,22 @@ def main_v02(argv):
     # TODO: Remove below. --compute-method=V02-structured-obj did not work on command line
     # compute_func = fast_reach.compute_network_structured_obj
 
+
+    print ("param_df just before compute_nhd_routing_v02")
+    print (param_df)
+
+    print ("param_df.dtypes")
+    print (param_df.dtypes)
+
+
+    print("param_df.index")
+    print(param_df.index)
+
+    print ("111111111@@@@@@!!!!!!!")
+
+
+
+
     results = compute_nhd_routing_v02(
         connections,
         rconn,
@@ -703,6 +722,8 @@ def nwm_route(
     debuglevel=0,
 ):
 
+    print ("nwm_route")
+
     ################### Main Execution Loop across ordered networks
     if showtiming:
         start_time = time.time()
@@ -789,6 +810,8 @@ def main_v03(argv):
     verbose = log_parameters.get("verbose", None)
     showtiming = log_parameters.get("showtiming", None)
     debuglevel = log_parameters.get("debuglevel", 0)
+
+    print ("main_v03")
 
     if showtiming:
         main_start_time = time.time()
