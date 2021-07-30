@@ -324,10 +324,10 @@ def _handle_args_v02(argv):
 
 def main_v02(argv):
 
-    print ("argv")
-    print (argv)
-    print (type(argv))
-    print ("end argv")
+    #print ("argv")
+    #print (argv)
+    #print (type(argv))
+    #print ("end argv")
 
     args = _handle_args_v02(argv)
     (
@@ -343,11 +343,11 @@ def main_v02(argv):
         coastal_parameters,
     ) = _input_handler_v02(args)
 
-    print ("main_v0222")
-    print ("argv")
-    print (argv)
-    print (type(argv))
-    print ("end argv")
+    #print ("main_v0222")
+    #print ("argv")
+    #print (argv)
+    #print (type(argv))
+    #print ("end argv")
 
 
 
@@ -575,27 +575,27 @@ def main_v02(argv):
     # compute_func = fast_reach.compute_network_structured_obj
 
 
-    print ("param_df just before compute_nhd_routing_v02 in __main__")
-    print (param_df)
+    #print ("param_df just before compute_nhd_routing_v02 in __main__")
+    #print (param_df)
 
-    print ("param_df.dtypes")
-    print (param_df.dtypes)
+    #print ("param_df.dtypes")
+    #print (param_df.dtypes)
 
 
-    print("param_df.index")
-    print(param_df.index)
+    #print("param_df.index")
+    #print(param_df.index)
 
-    print ("111111111@@@@@@!!!!!!!")
+    #print ("111111111@@@@@@!!!!!!!")
 
     total_hours = len(qlats.columns) 
 
-    print ("total_hours_in_main")
-    print (total_hours)
+    #print ("total_hours_in_main")
+    #print (total_hours)
 
     nts = total_hours * run_parameters.get("dt")
 
-    print ("nts_in_main")
-    print (nts)
+    #print ("nts_in_main")
+    #print (nts)
 
 
     results = compute_nhd_routing_v02(
@@ -774,7 +774,7 @@ def nwm_route(
     debuglevel=0,
 ):
 
-    print ("nwm_route")
+    #print ("nwm_route")
 
     ################### Main Execution Loop across ordered networks
     if showtiming:
@@ -863,7 +863,7 @@ def main_v03(argv):
     showtiming = log_parameters.get("showtiming", None)
     debuglevel = log_parameters.get("debuglevel", 0)
 
-    print ("main_v03")
+    #print ("main_v03")
 
     if showtiming:
         main_start_time = time.time()

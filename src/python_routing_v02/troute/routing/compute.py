@@ -634,20 +634,20 @@ def compute_nhd_routing_v02(
                 pd.set_option('display.max_rows', 500)
                 pd.options.display.max_seq_items = 500
 
-                print ("in compute.py at 636")
+                #print ("in compute.py at 636")
 
-                print("param_df_sub.index")
-                print(param_df_sub.index)
+                #print("param_df_sub.index")
+                #print(param_df_sub.index)
 
-                #print ("qlats.Index.dtype")
-                #print (qlats.Index.dtype)
+                ##print ("qlats.Index.dtype")
+                ##print (qlats.Index.dtype)
 
 
-                print ("qlats.dtypes")
-                print (qlats.dtypes)
+                #print ("qlats.dtypes")
+                #print (qlats.dtypes)
 
-                print ("qlats")
-                print (qlats)
+                #print ("qlats")
+                #print (qlats)
 
 
                 # qlat_sub = qlats.loc[common_segs].sort_index()
@@ -784,19 +784,19 @@ def compute_nhd_routing_v02(
             pd.set_option('display.max_rows', 500)
             pd.options.display.max_seq_items = 500
 
-            print ("in compute.py at 788")
+            #print ("in compute.py at 788")
 
-            print("param_df_sub.index")
-            print(param_df_sub.index)
+            #print("param_df_sub.index")
+            #print(param_df_sub.index)
 
-            #print ("qlats.Index.dtype")
-            #print (qlats.Index.dtype)
+            ##print ("qlats.Index.dtype")
+            ##print (qlats.Index.dtype)
 
-            print ("qlats.dtypes")
-            print (qlats.dtypes)
+            #print ("qlats.dtypes")
+            #print (qlats.dtypes)
 
-            print ("qlats")
-            print (qlats)
+            #print ("qlats")
+            #print (qlats)
 
             qlat_sub = qlats.loc[param_df_sub.index]
             q0_sub = q0.loc[param_df_sub.index]
@@ -806,8 +806,8 @@ def compute_nhd_routing_v02(
 
             qlat_time_step_seconds = qts_subdivisions * dt
 
-            print ("qlat_start_time")
-            print (qlat_start_time)
+            #print ("qlat_start_time")
+            #print (qlat_start_time)
 
             #Original
             #qlat_start_time_datetime_object = datetime.strptime(qlat_start_time, '%Y-%m-%d %H:%M:%S')
