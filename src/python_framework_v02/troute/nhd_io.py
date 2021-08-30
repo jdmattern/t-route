@@ -118,6 +118,13 @@ def read_custom_input(custom_input_file):
     )
 
 
+def read_ngen_nexus_id_to_downstream_comid_mapping(ngen_nexus_id_to_downstream_comid_mapping_file_path):
+    with open(ngen_nexus_id_to_downstream_comid_mapping_file_path) as json_file:
+        ngen_nexus_id_to_downstream_comid_mapping_dict = json.load(json_file)
+
+    return ngen_nexus_id_to_downstream_comid_mapping_dict
+
+
 def replace_downstreams(data, downstream_col, terminal_code):
     ds0_mask = data[downstream_col] == terminal_code
     new_data = data.copy()
@@ -198,6 +205,23 @@ def get_ql_from_csv(qlat_input_file, index_col=0):
     ql.index = ql.index.astype(int)
     ql = ql.sort_index(axis="index")
     return ql.astype("float32")
+
+
+def get_nexus_flows_from_csv(nexus_input_file, index_col=0):
+    """
+    nexus_input_file: comma delimted file for a single nexus flow with timestep rows
+    index_col = 0:
+    col1: date-time
+    col2: flows
+    """
+    #nexus_flows = pd.read_csv(nexus_input_file, index_col=index_col)
+    #nexus_flows = pd.read_csv(nexus_input_file, index_col=1, header=None)
+    #nexus_flows = pd.read_csv(nexus_input_file, index_col=1, header=0)
+    #nexus_flows = pd.read_csv(nexus_input_file, index_col=0, header=0)
+    nexus_flows = pd.read_csv(nexus_input_file, index_col=0, header=None)
+    #return ql.astype("float32")
+    return nexus_flows
+
 
 
 def read_qlat(path):

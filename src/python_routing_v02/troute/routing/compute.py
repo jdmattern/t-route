@@ -872,6 +872,25 @@ def compute_nhd_routing_v02(
 
                 reaches_list_with_type = _build_reach_type_list(reach_list, wbodies_segs)
 
+                pd.set_option('display.max_rows', 500)
+                pd.options.display.max_seq_items = 500
+
+                #print ("in compute.py at 636")
+
+                #print("param_df_sub.index")
+                #print(param_df_sub.index)
+
+                ##print ("qlats.Index.dtype")
+                ##print (qlats.Index.dtype)
+
+
+                #print ("qlats.dtypes")
+                #print (qlats.dtypes)
+
+                #print ("qlats")
+                #print (qlats)
+
+
                 # qlat_sub = qlats.loc[common_segs].sort_index()
                 # q0_sub = q0.loc[common_segs].sort_index()
                 qlat_sub = qlats.loc[param_df_sub.index]
@@ -989,6 +1008,25 @@ def compute_nhd_routing_v02(
 
             # qlat_sub = qlats.loc[common_segs].sort_index()
             # q0_sub = q0.loc[common_segs].sort_index()
+
+
+            pd.set_option('display.max_rows', 500)
+            pd.options.display.max_seq_items = 500
+
+            #print ("in compute.py at 788")
+
+            #print("param_df_sub.index")
+            #print(param_df_sub.index)
+
+            ##print ("qlats.Index.dtype")
+            ##print (qlats.Index.dtype)
+
+            #print ("qlats.dtypes")
+            #print (qlats.dtypes)
+
+            #print ("qlats")
+            #print (qlats)
+
             qlat_sub = qlats.loc[param_df_sub.index]
             q0_sub = q0.loc[param_df_sub.index]
 
@@ -997,12 +1035,28 @@ def compute_nhd_routing_v02(
 
             qlat_time_step_seconds = qts_subdivisions * dt
 
-            qlat_start_time_datetime_object =  _format_qlat_start_time(qlat_start_time)
+            #=========================
+            #JDM: New??? Use this instead of below???
+            #qlat_start_time_datetime_object =  _format_qlat_start_time(qlat_start_time)
+            #==========================
+             
+            #print ("qlat_start_time")
+            #print (qlat_start_time)
+
+            #Original
+            #qlat_start_time_datetime_object = datetime.strptime(qlat_start_time, '%Y-%m-%d %H:%M:%S')
+
+            #Quick fix for now for nexus time because has an extra space at the beginning of the string
+            qlat_start_time_datetime_object = datetime.strptime(qlat_start_time, ' %Y-%m-%d %H:%M:%S')
 
             model_start_time_datetime_object = qlat_start_time_datetime_object \
             - timedelta(seconds=qlat_time_step_seconds)
 
-            model_start_time = model_start_time_datetime_object.strftime('%Y-%m-%d_%H:%M:%S')
+            #Original
+            #model_start_time = model_start_time_datetime_object.strftime('%Y-%m-%d_%H:%M:%S')
+
+            #Quick fix for now for nexus time because has an extra space at the beginning of the string
+            model_start_time = model_start_time_datetime_object.strftime(' %Y-%m-%d_%H:%M:%S')
 
             param_df_sub = param_df_sub.reindex(
                 param_df_sub.index.tolist() + lake_segs

@@ -2,27 +2,32 @@ import argparse
 import time
 from datetime import datetime
 from collections import defaultdict
-from pathlib import Path
+import pathlib
 import pandas as pd
 
 ## network and reach utilities
-import troute.nhd_network as nhd_network
-import troute.nhd_io as nhd_io
-import troute.nhd_network_utilities_v02 as nnu
-import build_tests  # TODO: Determine whether and how to incorporate this into setup.py
+#import troute.nhd_network as nhd_network
+#import troute.nhd_io as nhd_io
+#import troute.nhd_network_utilities_v02 as nnu
+#import build_tests  # TODO: Determine whether and how to incorporate this into setup.py
 import sys
+import os
 
-import troute.routing.diffusive_utils as diff_utils
+#https://github.com/googleapis/oauth2client/issues/642
+if not hasattr(sys, 'argv'):
+    sys.argv  = ['']
 
-from .input import _input_handler_v02, _input_handler_v03
-from .preprocess import (
-    nwm_network_preprocess,
-    nwm_initial_warmstate_preprocess,
-    nwm_forcing_preprocess,
-)
-from .output import nwm_output_generator
+#import troute.routing.diffusive_utils as diff_utils
 
-from troute.routing.compute import compute_nhd_routing_v02
+#from .input import _input_handler_v02, _input_handler_v03
+#from .preprocess import (
+#    nwm_network_preprocess,
+#    nwm_initial_warmstate_preprocess,
+#    nwm_forcing_preprocess,
+#)
+#from .output import nwm_output_generator
+
+#from troute.routing.compute import compute_nhd_routing_v02
 
 
 def set_paths(root_path):
@@ -30,25 +35,51 @@ def set_paths(root_path):
     framework_path = "../../../python_framework_v02"
     routing_path = "../../../python_routing_v02"
     network_utilities_path = "../../../python_framework_v02/troute"
+    #nwm_routing_path =  "."
 
 
     framework_path_full = os.path.join(root_path, framework_path)
     routing_path_full = os.path.join(root_path, routing_path)
     network_utilities_path_full = os.path.join(root_path, network_utilities_path)
-
+ 
     sys.path.append(framework_path_full)
     sys.path.append(routing_path_full)
     sys.path.append(network_utilities_path_full)
 
     import troute.nhd_network as nhd_network
     #import compute_nhd_routing_v02
-    #from troute.routing.compute import compute_nhd_routing_v02
+    from troute.routing.compute import compute_nhd_routing_v02
     #import mc_reach
 
     import troute.nhd_io as nhd_io
 
     import troute.nhd_network_utilities_v02 as nnu
 
+    #from troute.routing.compute import compute_nhd_routing_v02
+
+    #import nwm_routing.input as input1
+ 
+    from nwm_routing.input import _input_handler_v02, _input_handler_v03
+    from nwm_routing.preprocess import (
+        nwm_network_preprocess,
+        nwm_initial_warmstate_preprocess,
+        nwm_forcing_preprocess,
+    )
+    from nwm_routing.output import nwm_output_generator
+
+
+    #import input._input_handler_v02 as _input_handler_v02
+    #import nwm_routing.input._input_handler_v02 as _input_handler_v02
+
+    #from input import _input_handler_v02, _input_handler_v03
+    '''
+    from nwm_routing.preprocess import (
+        nwm_network_preprocess,
+        nwm_initial_warmstate_preprocess,
+        nwm_forcing_preprocess,
+    )
+    from nwm_routing.output import nwm_output_generator
+    '''
 
 
     #from preprocess import ngen_preprocess
@@ -322,12 +353,37 @@ def _handle_args_v02(argv):
     return parser.parse_args(argv)
 
 
+#def main_v02():
 def main_v02(argv):
 
-    #print ("argv")
+    #print ("argv222")
     #print (argv)
     #print (type(argv))
     #print ("end argv")
+    #from nwm_routing.input import _input_handler_v02, _input_handler_v03
+
+    import troute.nhd_network as nhd_network
+    #import compute_nhd_routing_v02
+    from troute.routing.compute import compute_nhd_routing_v02
+    #import mc_reach
+
+    import troute.nhd_io as nhd_io
+
+    import troute.nhd_network_utilities_v02 as nnu
+
+    #from troute.routing.compute import compute_nhd_routing_v02
+
+    #import nwm_routing.input as input1
+ 
+    from nwm_routing.input import _input_handler_v02, _input_handler_v03
+    from nwm_routing.preprocess import (
+        nwm_network_preprocess,
+        nwm_initial_warmstate_preprocess,
+        nwm_forcing_preprocess,
+    )
+    from nwm_routing.output import nwm_output_generator
+
+
 
     args = _handle_args_v02(argv)
     (
@@ -343,12 +399,7 @@ def main_v02(argv):
         coastal_parameters,
     ) = _input_handler_v02(args)
 
-    #print ("main_v0222")
-    #print ("argv")
-    #print (argv)
-    #print (type(argv))
-    #print ("end argv")
-
+    #print ("main_v02")
 
 
     dt = run_parameters.get("dt", None)
@@ -369,12 +420,11 @@ def main_v02(argv):
         start_time = time.time()
 
     # STEP 1: Build basic network connections graph
-    #connections, param_df, wbody_conn, gages = nnu.build_connections(
     connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
         supernetwork_parameters
     )
     if break_network_at_waterbodies:
-        connections = nhd_network.replace_waterbodies_connections(connections, wbody_conn)
+        connections = nhd_network.replace_waterbodies_connections(connections, wbodies)
 
     if verbose:
         print("supernetwork connections set complete")
@@ -392,7 +442,7 @@ def main_v02(argv):
     if break_network_at_waterbodies:
         # Read waterbody parameters
         waterbodies_df = nhd_io.read_waterbody_df(
-            waterbody_parameters, {"level_pool": wbody_conn.values()}
+            waterbody_parameters, {"level_pool": wbodies.values()}
         )
 
         # Remove duplicate lake_ids and rows
@@ -421,7 +471,7 @@ def main_v02(argv):
             waterbody_type_specified = True
 
             waterbody_types_df = nhd_io.read_reservoir_parameter_file(wb_params_hybrid_and_rfc["reservoir_parameter_file"], \
-                wb_params_level_pool["level_pool_waterbody_id"], wbody_conn.values(),)
+                wb_params_level_pool["level_pool_waterbody_id"], wbodies.values(),) 
 
             # Remove duplicate lake_ids and rows
             waterbody_types_df = (
@@ -534,22 +584,16 @@ def main_v02(argv):
     data_assimilation_csv = data_assimilation_parameters.get(
         "data_assimilation_csv", None
     )
-    data_assimilation_folder = data_assimilation_parameters.get(
-        "data_assimilation_folder", None
+    data_assimilation_filter = data_assimilation_parameters.get(
+        "data_assimilation_filter", None
     )
-    last_obs_file = data_assimilation_parameters.get(
-        "wrf_hydro_last_obs_file", None
-    )
-
-    if data_assimilation_csv or data_assimilation_folder or last_obs_file:
+    if data_assimilation_csv or data_assimilation_filter:
         if showtiming:
             start_time = time.time()
         if verbose:
             print("creating usgs time_slice data array ...")
 
-            usgs_df, lastobs_df, da_parameter_dict = nnu.build_data_assimilation(
-                data_assimilation_parameters
-            )
+        usgs_df = nnu.build_data_assimilation(data_assimilation_parameters)
 
         if verbose:
             print("usgs array complete")
@@ -558,8 +602,9 @@ def main_v02(argv):
 
     else:
         usgs_df = pd.DataFrame()
-        lastobs_df = pd.DataFrame()
-        da_parameter_dict = {}
+
+    last_obs_file = data_assimilation_parameters.get("wrf_hydro_last_obs_file", None)
+    last_obs_df = pd.DataFrame()
 
     ################### Main Execution Loop across ordered networks
     if showtiming:
@@ -607,7 +652,7 @@ def main_v02(argv):
     results = compute_nhd_routing_v02(
         connections,
         rconn,
-        wbody_conn,
+        wbodies,
         reaches_bytw,
         compute_func,
         run_parameters.get("parallel_compute_method", None),
@@ -623,8 +668,7 @@ def main_v02(argv):
         q0,
         qlats,
         usgs_df,
-        lastobs_df,
-        da_parameter_dict,
+        last_obs_df,
         run_parameters.get("assume_short_ts", False),
         run_parameters.get("return_courant", False),
         waterbodies_df,
@@ -646,12 +690,13 @@ def main_v02(argv):
     if verbose:
         print(f"Handling output ...")
 
-    csv_output = output_parameters.get("csv_output", None)
-    if csv_output:
-        csv_output_folder = output_parameters["csv_output"].get(
-            "csv_output_folder", None
-        )
-        csv_output_segments = csv_output.get("csv_output_segments", None)
+    if output_parameters:
+        csv_output = output_parameters.get("csv_output", None)
+        if csv_output:
+            csv_output_folder = output_parameters["csv_output"].get(
+                "csv_output_folder", None
+            )
+            csv_output_segments = csv_output.get("csv_output_segments", None)
 
     if (debuglevel <= -1) or csv_output:
 
@@ -659,10 +704,16 @@ def main_v02(argv):
             [range(nts), ["q", "v", "d"]]
         ).to_flat_index()
 
-        flowveldepth = pd.concat(
-            [pd.DataFrame(r[1], index=r[0], columns=qvd_columns) for r in results],
-            copy=False,
-        )
+        if run_parameters.get("return_courant", False):
+            flowveldepth = pd.concat(
+                [pd.DataFrame(d, index=i, columns=qvd_columns) for i, d, c in results],
+                copy=False,
+            )
+        else:
+            flowveldepth = pd.concat(
+                [pd.DataFrame(d, index=i, columns=qvd_columns) for i, d in results],
+                copy=False,
+            )
 
         if run_parameters.get("return_courant", False):
             courant_columns = pd.MultiIndex.from_product(
@@ -670,8 +721,8 @@ def main_v02(argv):
             ).to_flat_index()
             courant = pd.concat(
                 [
-                    pd.DataFrame(r[2], index=r[0], columns=courant_columns)
-                    for r in results
+                    pd.DataFrame(c, index=i, columns=courant_columns)
+                    for i, d, c in results
                 ],
                 copy=False,
             )
@@ -691,7 +742,7 @@ def main_v02(argv):
                 filename_fvd = "flowveldepth_" + run_time_stamp + ".csv"
                 filename_courant = "courant_" + run_time_stamp + ".csv"
 
-            output_path = Path(csv_output_folder).resolve()
+            output_path = pathlib.Path(csv_output_folder).resolve()
 
             flowveldepth = flowveldepth.sort_index()
             flowveldepth.to_csv(output_path.joinpath(filename_fvd))
@@ -705,74 +756,6 @@ def main_v02(argv):
 
         if debuglevel <= -1:
             print(flowveldepth)
-
-    # directory containing WRF Hydro restart files
-    wrf_hydro_restart_dir = output_parameters.get(
-        "wrf_hydro_channel_restart_directory", None
-    )
-    if wrf_hydro_restart_dir:
-
-        wrf_hydro_channel_restart_new_extension = output_parameters.get(
-            "wrf_hydro_channel_restart_new_extension", "TRTE"
-        )
-
-        # list of WRF Hydro restart files
-        wrf_hydro_restart_files = sorted(
-            Path(wrf_hydro_restart_dir).glob(
-                output_parameters["wrf_hydro_channel_restart_pattern_filter"]
-                + "[!"
-                + wrf_hydro_channel_restart_new_extension
-                + "]"
-            )
-        )
-
-        if len(wrf_hydro_restart_files) > 0:
-            qvd_columns = pd.MultiIndex.from_product(
-                [range(nts), ["q", "v", "d"]]
-            ).to_flat_index()
-
-            flowveldepth = pd.concat(
-                [pd.DataFrame(r[1], index=r[0], columns=qvd_columns) for r in results],
-                copy=False,
-            )
-            nhd_io.write_channel_restart_to_wrf_hydro(
-                flowveldepth,
-                wrf_hydro_restart_files,
-                restart_parameters.get("wrf_hydro_channel_restart_file"),
-                run_parameters.get("dt"),
-                run_parameters.get("nts"),
-                restart_parameters.get("wrf_hydro_channel_ID_crosswalk_file"),
-                restart_parameters.get(
-                    "wrf_hydro_channel_ID_crosswalk_file_field_name"
-                ),
-                wrf_hydro_channel_restart_new_extension,
-            )
-        else:
-            # print error and raise exception
-            str = "WRF Hydro restart files not found - Aborting restart write sequence"
-            raise AssertionError(str)
-
-    chrtout_folder = output_parameters.get("wrf_hydro_channel_output_folder", None)
-    if chrtout_folder:
-        qvd_columns = pd.MultiIndex.from_product(
-            [range(nts), ["q", "v", "d"]]
-        ).to_flat_index()
-
-        flowveldepth = pd.concat(
-            [pd.DataFrame(r[1], index=r[0], columns=qvd_columns) for r in results],
-            copy=False,
-        )
-        wrf_hydro_channel_output_new_extension = output_parameters.get(
-            "wrf_hydro_channel_output_new_extension", "TRTE"
-        )
-        chrtout_files = sorted(
-            Path(chrtout_folder).glob(
-                output_parameters["wrf_hydro_channel_output_file_pattern_filter"]
-            )
-        )
-        nhd_io.write_q_to_wrf_hydro(
-            flowveldepth, chrtout_files, run_parameters["qts_subdivisions"]
-        )
 
     if verbose:
         print("output complete")
@@ -829,8 +812,7 @@ def nwm_route(
     q0,
     qlats,
     usgs_df,
-    lastobs_df,
-    da_parameter_dict,
+    last_obs_df,
     assume_short_ts,
     return_courant,
     waterbodies_df,
@@ -876,8 +858,7 @@ def nwm_route(
         q0,
         qlats,
         usgs_df,
-        lastobs_df,
-        da_parameter_dict,
+        last_obs_df,
         assume_short_ts,
         return_courant,
         waterbodies_df,
@@ -941,7 +922,7 @@ def main_v03(argv):
     (
         connections,
         param_df,
-        wbody_conn,
+        wbodies,
         waterbodies_df,
         waterbody_types_df,
         break_network_at_waterbodies,
@@ -958,7 +939,7 @@ def main_v03(argv):
     )
 
     # TODO: This function modifies one of its arguments (waterbodies_df), which is somewhat poor practice given its otherwise functional nature. Consider refactoring
-    waterbodies_df, q0, lastobs_df = nwm_initial_warmstate_preprocess(
+    waterbodies_df, q0, last_obs_df = nwm_initial_warmstate_preprocess(
         break_network_at_waterbodies,
         restart_parameters,
         param_df.index,
@@ -992,7 +973,7 @@ def main_v03(argv):
     assume_short_ts = compute_parameters.get("assume_short_ts", False)
     return_courant = compute_parameters.get("return_courant", False)
 
-    qlats, usgs_df, lastobs_df, da_parameter_dict = nwm_forcing_preprocess(
+    qlats, usgs_df = nwm_forcing_preprocess(
         run_sets[0],
         forcing_parameters,
         data_assimilation_parameters,
@@ -1015,7 +996,7 @@ def main_v03(argv):
         run_results = nwm_route(
             connections,
             rconn,
-            wbody_conn,
+            wbodies,
             reaches_bytw,
             parallel_compute_method,
             compute_kernel,
@@ -1029,8 +1010,7 @@ def main_v03(argv):
             q0,
             qlats,
             usgs_df,
-            lastobs_df,
-            da_parameter_dict,
+            last_obs_df,
             assume_short_ts,
             return_courant,
             waterbodies_df,
@@ -1046,7 +1026,7 @@ def main_v03(argv):
         if (
             run_set_iterator < len(run_sets) - 1
         ):  # No forcing to prepare for the last loop
-            qlats, usgs_df, lastobs_dict, da_parameter_dict = nwm_forcing_preprocess(
+            qlats, usgs_df = nwm_forcing_preprocess(
                 run_sets[run_set_iterator + 1],
                 forcing_parameters,
                 data_assimilation_parameters,
