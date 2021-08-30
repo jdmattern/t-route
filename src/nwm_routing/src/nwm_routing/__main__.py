@@ -370,7 +370,10 @@ def main_v02(argv):
 
     # STEP 1: Build basic network connections graph
     #connections, param_df, wbody_conn, gages = nnu.build_connections(
-    connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
+    #connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
+    #    supernetwork_parameters
+    #)
+    connections, param_df, wbody_conn, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
         supernetwork_parameters
     )
     if break_network_at_waterbodies:

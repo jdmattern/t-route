@@ -59,7 +59,7 @@ cpdef object binary_find(object arr, object els):
         if arr[m] == el:
             idxs.append(m)
         else:
-            #raise ValueError(f"element {el} not found in {np.asarray(arr)}")
+            raise ValueError(f"element {el} not found in {np.asarray(arr)}")
             #print(f"element {el} not found in {np.asarray(arr)}")
     return idxs
 
@@ -1318,48 +1318,30 @@ cpdef object compute_network_structured(
                     upstream_flows += flowveldepth[id, timestep, 0]
                     previous_upstream_flows += flowveldepth[id, timestep-1, 0]
 
-              if assume_short_ts:
-                upstream_flows = previous_upstream_flows
+                if assume_short_ts:
+                    upstream_flows = previous_upstream_flows
 
-              if r.type == compute_type.RESERVOIR_LP:
-                #temp
-                reservoir_outflow = upstream_flows
-                reservoir_water_elevation = 0.0
+                if r.type == compute_type.RESERVOIR_LP:
+                    #JDM: temp
+                    #reservoir_outflow = upstream_flows
+                    #reservoir_water_elevation = 0.0
 
-                #run_lp_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
-                flowveldepth[r.id, timestep, 0] = reservoir_outflow
-                flowveldepth[r.id, timestep, 1] = 0.0
-                flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
+                    run_lp_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
+                    flowveldepth[r.id, timestep, 0] = reservoir_outflow
+                    flowveldepth[r.id, timestep, 1] = 0.0
+                    flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
 
-              elif r.type == compute_type.RESERVOIR_HYBRID:
-                run_hybrid_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
-                flowveldepth[r.id, timestep, 0] = reservoir_outflow
-                flowveldepth[r.id, timestep, 1] = 0.0
-                flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
+                elif r.type == compute_type.RESERVOIR_HYBRID:
+                    run_hybrid_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
+                    flowveldepth[r.id, timestep, 0] = reservoir_outflow
+                    flowveldepth[r.id, timestep, 1] = 0.0
+                    flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
 
-              elif r.type == compute_type.RESERVOIR_RFC:
-                run_rfc_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
-                flowveldepth[r.id, timestep, 0] = reservoir_outflow
-                flowveldepth[r.id, timestep, 1] = 0.0
-                flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
-
-              else:
-                #Create compute reach kernel input buffer
-                for i in range(r.reach.mc_reach.num_segments):
-                  segment = get_mc_segment(r, i)#r._segments[i]
-                  buf_view[i, 0] = qlat_array[ segment.id, <int>((timestep-1)/qlat_resample)]
-                  buf_view[i, 1] = segment.dt
-                  buf_view[i, 2] = segment.dx
-                  buf_view[i, 3] = segment.bw
-                  buf_view[i, 4] = segment.tw
-                  buf_view[i, 5] = segment.twcc
-                  buf_view[i, 6] = segment.n
-                  buf_view[i, 7] = segment.ncc
-                  buf_view[i, 8] = segment.cs
-                  buf_view[i, 9] = segment.s0
-                  buf_view[i, 10] = flowveldepth[segment.id, timestep-1, 0]
-                  buf_view[i, 11] = 0.0 #flowveldepth[segment.id, timestep-1, 1]
-                  buf_view[i, 12] = flowveldepth[segment.id, timestep-1, 2]
+                elif r.type == compute_type.RESERVOIR_RFC:
+                    run_rfc_c(r, upstream_flows, 0.0, 300, &reservoir_outflow, &reservoir_water_elevation)
+                    flowveldepth[r.id, timestep, 0] = reservoir_outflow
+                    flowveldepth[r.id, timestep, 1] = 0.0
+                    flowveldepth[r.id, timestep, 2] = reservoir_water_elevation
 
                 else:
                     #Create compute reach kernel input buffer
