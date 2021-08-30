@@ -25,6 +25,38 @@ from .output import nwm_output_generator
 from troute.routing.compute import compute_nhd_routing_v02
 
 
+def set_paths(root_path):
+
+    framework_path = "../../../python_framework_v02"
+    routing_path = "../../../python_routing_v02"
+    network_utilities_path = "../../../python_framework_v02/troute"
+
+
+    framework_path_full = os.path.join(root_path, framework_path)
+    routing_path_full = os.path.join(root_path, routing_path)
+    network_utilities_path_full = os.path.join(root_path, network_utilities_path)
+
+    sys.path.append(framework_path_full)
+    sys.path.append(routing_path_full)
+    sys.path.append(network_utilities_path_full)
+
+    import troute.nhd_network as nhd_network
+    #import compute_nhd_routing_v02
+    #from troute.routing.compute import compute_nhd_routing_v02
+    #import mc_reach
+
+    import troute.nhd_io as nhd_io
+
+    import troute.nhd_network_utilities_v02 as nnu
+
+
+
+    #from preprocess import ngen_preprocess
+    #import next_gen_io
+
+    return
+
+
 def _handle_args_v03(argv):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -291,6 +323,12 @@ def _handle_args_v02(argv):
 
 
 def main_v02(argv):
+
+    #print ("argv")
+    #print (argv)
+    #print (type(argv))
+    #print ("end argv")
+
     args = _handle_args_v02(argv)
     (
         supernetwork_parameters,
@@ -304,6 +342,14 @@ def main_v02(argv):
         diffusive_parameters,
         coastal_parameters,
     ) = _input_handler_v02(args)
+
+    #print ("main_v0222")
+    #print ("argv")
+    #print (argv)
+    #print (type(argv))
+    #print ("end argv")
+
+
 
     dt = run_parameters.get("dt", None)
     nts = run_parameters.get("nts", None)
@@ -324,6 +370,7 @@ def main_v02(argv):
 
     # STEP 1: Build basic network connections graph
     #connections, param_df, wbody_conn, gages = nnu.build_connections(
+    #connections, param_df, wbodies, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
     #    supernetwork_parameters
     #)
     connections, param_df, wbody_conn, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
@@ -477,6 +524,7 @@ def main_v02(argv):
         forcing_parameters,
         param_df.index,
         nts,
+        ngen_nexus_id_to_downstream_comid_mapping_dict,
         run_parameters.get("qts_subdivisions", 1),
     )
 
@@ -535,6 +583,30 @@ def main_v02(argv):
     # TODO: Remove below. --compute-method=V02-structured-obj did not work on command line
     # compute_func = fast_reach.compute_network_structured_obj
 
+
+    #print ("param_df just before compute_nhd_routing_v02 in __main__")
+    #print (param_df)
+
+    #print ("param_df.dtypes")
+    #print (param_df.dtypes)
+
+
+    #print("param_df.index")
+    #print(param_df.index)
+
+    #print ("111111111@@@@@@!!!!!!!")
+
+    total_hours = len(qlats.columns) 
+
+    #print ("total_hours_in_main")
+    #print (total_hours)
+
+    nts = total_hours * run_parameters.get("dt")
+
+    #print ("nts_in_main")
+    #print (nts)
+
+
     results = compute_nhd_routing_v02(
         connections,
         rconn,
@@ -546,7 +618,8 @@ def main_v02(argv):
         # The default here might be the whole network or some percentage...
         run_parameters.get("cpu_pool", None),
         run_parameters.get("dt"),
-        run_parameters.get("nts", 1),
+        #run_parameters.get("nts", 1),
+        nts,
         run_parameters.get("qts_subdivisions", 1),
         independent_networks,
         param_df,
@@ -773,6 +846,8 @@ def nwm_route(
     debuglevel=0,
 ):
 
+    #print ("nwm_route")
+
     ################### Main Execution Loop across ordered networks
     if showtiming:
         start_time = time.time()
@@ -860,6 +935,8 @@ def main_v03(argv):
     verbose = log_parameters.get("verbose", None)
     showtiming = log_parameters.get("showtiming", None)
     debuglevel = log_parameters.get("debuglevel", 0)
+
+    #print ("main_v03")
 
     if showtiming:
         main_start_time = time.time()
