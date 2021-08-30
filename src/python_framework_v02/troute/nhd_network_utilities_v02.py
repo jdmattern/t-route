@@ -586,9 +586,10 @@ def build_channel_initial_state(
 def build_qlateral_array(
     forcing_parameters,
     segment_index=pd.Index([]),
+    ts_iterator=None,
     #supernetwork_parameters, #adding this for now, might remove later. Just need to read data_mask
     ngen_nexus_id_to_downstream_comid_mapping_dict=None,
-    ts_iterator=None,
+    #ts_iterator=None,
     file_run_size=None,
 ):
     # TODO: set default/optional arguments
