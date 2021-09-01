@@ -327,7 +327,7 @@ def main_v02(argv):
     #    supernetwork_parameters
     #)
     #connections, param_df, wbody_conn, gages, ngen_nexus_id_to_downstream_comid_mapping_dict = nnu.build_connections(
-    connections, param_df, wbody_conn, gages, nexus_to_downstream_catchment_dict = nnu.build_connections(
+    connections, param_df, wbody_conn, gages, nexus_to_downstream_flowpath_dict = nnu.build_connections(
         supernetwork_parameters
     )
     if break_network_at_waterbodies:
@@ -478,7 +478,7 @@ def main_v02(argv):
         forcing_parameters,
         param_df.index,
         nts,
-        nexus_to_downstream_catchment_dict,
+        nexus_to_downstream_flowpath_dict,
         run_parameters.get("qts_subdivisions", 1),
     )
 
