@@ -323,7 +323,7 @@ def main_v02(argv):
         start_time = time.time()
 
 
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
 
     # STEP 1: Build basic network connections graph
     #connections, param_df, wbody_conn, gages = nnu.build_connections(
