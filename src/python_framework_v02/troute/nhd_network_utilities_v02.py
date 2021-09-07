@@ -929,6 +929,9 @@ def build_qlateral_array(
 
 
             #Need to sort qlats
+            #Take this out because sorting below???
+            qlat_df = qlat_df.sort_index()
+
 
             ############
             #segment_index has full network of segments whereas the downstream segs is a subset of that
@@ -996,6 +999,10 @@ def build_qlateral_array(
 
 
             #print ("^^^^^^^^^^^^^^^^^^^")
+
+            #Need to sort qlats
+            qlat_df = qlat_df.sort_index()
+
 
 
     else:
