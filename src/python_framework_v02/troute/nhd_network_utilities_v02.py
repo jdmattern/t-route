@@ -406,7 +406,6 @@ def build_connections(supernetwork_parameters):
 
     print ("param_df after reindex")
     print (param_df)
-    print ("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6")
 
 
     #ngen_nexus_id_to_downstream_comid_mapping_dict = {}
@@ -429,7 +428,6 @@ def build_connections(supernetwork_parameters):
 
     print ("param_df after read1.5")
     print (param_df)
-    print ("$$$$$$$$$$$$$$$$$$$$$$$")
     print ("cols!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     print (cols)
     print ("******************")
@@ -485,7 +483,6 @@ def build_connections(supernetwork_parameters):
     
     print ("param_df after rename")
     print (param_df)
-    print ("$$$$$$$$$$$$$$$$$$$$$$$")
 
 
     wbodies = {}
